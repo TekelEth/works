@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Outfit:wght@100..900&display=swap');
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .border-line {
+        @apply border border-[#FFFFFF33] rounded-[15px] bg-[#FB72000D]
+    }
+
+    .text-bold {
+        @apply font-semibold text-[35px]/[50px] text-white font-montserrat
+    }
+
+
+}
