@@ -11,8 +11,8 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 default: 'text-white bg-primary-gradient',
-                primary: 'text-white bg-primary-100 border-none',
-                outline: 'bg-[#FB72001A] text-white border border-[#FB7200CC]'
+                primary: 'hover:bg-[#FB72001A] duration-300 text-white bg-primary-100 border-none hover:text-white hover:border hover:border-[#FB7200CC]',
+                outline: 'bg-[#FB72001A] text-white border duration-300 hover:bg-primary-100 hover:border-none border-[#FB7200CC]'
             },
             size: {
                 default: 'w-[227px] font-[14px] h-[43px] p-[10px]'

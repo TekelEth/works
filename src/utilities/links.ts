@@ -14,7 +14,7 @@ export const navlinks = [
         href: '/'
     },
     {
-        title:'Tokes',
+        title:'Tokens',
         href: '/'
     },
     {

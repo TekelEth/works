@@ -23,12 +23,27 @@ import eth from '../assets/icons/eth.svg';
 import usdt from '../assets/icons/usdt.svg';
 import sortIcon from '../assets/icons/sort.svg';
 import collaterralIcon from '../assets/icons/collateral.svg'
-
-
+import asud from '../assets/icons/ausd.svg';
+import linker from '../assets/icons/linker.svg';
+import connector from '../assets/icons/connector.svg';
+import cancel from '../assets/icons/cancel.svg';
+import metamask from '../assets/icons/metamask.svg';
+import coinbase from '../assets/icons/coinbase.svg';
+import walletConnect from '../assets/icons/wallet-connect.svg';
+import phantom from '../assets/icons/phantom.svg';
+import danger from '../assets/icons/danger.svg';
+import filter from '../assets/icons/filter.svg'
 
 export const images = {
     logo,
+    cancel,
     hodl,
+    metamask,
+    danger,
+    filter,
+    coinbase,
+    walletConnect,
+    phantom,
     background,
     backdrop,
     icon1,
@@ -40,6 +55,7 @@ export const images = {
     media2,
     sortIcon,
     collaterralIcon,
+    connector,
     media3,
     phone, 
     email,
@@ -51,5 +67,7 @@ export const images = {
     bnb,
     btc,
     base,
-    usdt
+    usdt,
+    asud,
+    linker
 } 

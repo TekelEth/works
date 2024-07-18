@@ -43,3 +43,25 @@ export const marketTable = [
     },
     
 ]
+
+export const wallets = [
+    {
+        icon: images.metamask,
+        name: 'Browser Wallet'
+    },
+
+    {
+        icon: images.coinbase,
+        name: 'Coinbase Wallet'
+    },
+
+    {
+        icon: images.phantom,
+        name: 'Phantom Wallet'
+    },
+
+    {
+        icon: images.walletConnect,
+        name: 'WalletConnect'
+    }
+]

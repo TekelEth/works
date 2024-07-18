@@ -11,9 +11,7 @@ const Footer = () => {
             <img src={images.logo} alt="logo-image" />
         </Link>
         <span className='font-montserrat text-gray-200 mt-6 text-[20px]/[34px]'>
-            It is a long established fact that from
-            will be distracted by the readable 
-            from when looking.
+        A better stablecoin solution that offers more possibilities for on-chain native yield.
         </span>
         </div>
         <div className='flex col-span-2 -ml-8 flex-col'>

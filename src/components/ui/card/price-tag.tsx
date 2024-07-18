@@ -16,7 +16,7 @@ const cardVariants = cva(
                 lg: 'h-[244px] rounded-[20px]',
                 sm: 'h-[122px] rounded-[10px]',
                 md: 'h-[204px] rounded-[10px]',
-                xl: 'h-[246px]'
+                xl: 'min-h-[200px]'
             },
         },
         defaultVariants: {

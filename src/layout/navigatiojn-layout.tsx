@@ -2,9 +2,14 @@ import { images } from '../utilities/images'
 import { Link, useLocation } from 'react-router-dom'
 import { dashbaordLinks } from '../utilities/links'
 import Button from '../components/ui/button';
+import { useState } from 'react';
+import ModalContainer from '../components/modal';
+import WalletConnectModal from '../components/modal/connect-modal';
 
 const NavigationLayout = () => {
     const router = useLocation();
+    const [open, setOpen] = useState(false);
+    const close = () => setOpen(false);
   return (
     <div className='px-20 py-6 flex items-center justify-between'>
         <div className='flex items-center justify-between gap-x-10'>
@@ -13,7 +18,7 @@ const NavigationLayout = () => {
             </Link>
             {
                 dashbaordLinks.map((link, index) => {
-                    const active = link.href === router.pathname;
+                    const active = router.pathname.includes(link.href);
                     return (
                         <Link to={link.href} key={index}>
                             <span className={`${active && 'border-b border-primary-100'} pb-3 font-montserrat text-white font-semibold text-[16px]/[20px]`}>{link.title}</span>
@@ -26,10 +31,13 @@ const NavigationLayout = () => {
             <Button variant={'outline'} className='w-[128px] h-[45px]'>
                 <img src={images.groupMask} alt="mask-images" width={90} />
             </Button>
-            <Button variant={'primary'} className='w-[158px] h-[45px]'>
+            <Button variant={'primary'} className='w-[158px] h-[45px]' onClick={() => setOpen(true)}>
                 Connect Wallet
             </Button>
         </div>
+        <ModalContainer open={open} close={close}>
+            <WalletConnectModal close={close} />
+        </ModalContainer>
     </div>
   )
 }

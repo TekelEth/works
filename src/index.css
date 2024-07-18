@@ -12,8 +12,22 @@
     }
 
     .text-bold {
-        @apply font-semibold text-[35px]/[50px] text-white font-montserrat
+        @apply font-semibold  text-white font-montserrat
     }
 
-
+    .progress-bar-container {
+        width: 100%;
+        background-color: #D9D9D9;
+        border-radius: 25px;
+        overflow: hidden;
+      }
+      
+      .progress-bar {
+        height: 8px;
+        background-color: #FB7200;
+        width: 0;
+        border-radius: 25px;
+        transition: width 0.5s ease-in-out;
+      }
+      
 }
