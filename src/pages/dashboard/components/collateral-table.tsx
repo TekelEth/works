@@ -1,68 +1,74 @@
-import { marketTable } from '../../../__mockdata__/tables'
-import Button from '../../../components/ui/button'
-import { images } from '../../../utilities/images'
+import { collateralMarketTokens } from '../../../__mockdata__/tables';
+import Button from '../../../components/ui/button';
+import { images } from '../../../utilities/images';
 
 const CollateralTable = () => {
   return (
-    <div className='pt-20'>
-    <div className=' w-full border border-[#FFFFFF4D] min-h-[400px] rounded-[10px]'>
-      <div className='flex items-center border-b border-[#FFFFFF4D] justify-between px-[30px] py-[18px]'>
-        <h1 className='text-bold text-[35px]/[50px]'>My Collateral List</h1>
+    <div className="pt-20">
+      <div className=" w-full border border-[#FFFFFF4D] min-h-[400px] rounded-[10px]">
+        <div className="flex items-center border-b border-[#FFFFFF4D] justify-between px-[30px] py-[18px]">
+          <h1 className="text-bold text-[35px]/[50px]">My Collateral List</h1>
         </div>
         <div className="overflow-x-auto">
-      <table className="min-w-full divide-y  divide-[#FFFFFF1A]">
-        <thead className="bg-transparent">
-          <tr className='h-[85px]'>
-            <th
-              scope="col"
-              className="px-16 py-5  text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
-            >
-              <div className='flex items-center'>
-                <span>Assets</span>
-              </div>
-             </th>
-            <th
-              scope="col"
-              className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
-            >
-             <div className='flex items-center'>
-                <span>Price</span>
-              <img src={images.sortIcon} className='ml-2' alt="sort-icon" width={12} height={12} />
-          </div>
-            </th>
-            <th
-              scope="col"
-              className="px-6  py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
-            >
-              MCR
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
-            >
-              Collateral
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
-            >
-              Borrowed
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
-            >
-              Net Borrowing APR
-            </th>   
-            <th
-              scope="col"
-              className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-transparent divide-y divide-[#FFFFFF1A]">
+          <table className="min-w-full divide-y  divide-[#FFFFFF1A]">
+            <thead className="bg-transparent">
+              <tr className="h-[85px]">
+                <th
+                  scope="col"
+                  className="px-16 py-5  text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
+                >
+                  <div className="flex items-center">
+                    <span>Assets</span>
+                  </div>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
+                >
+                  <div className="flex items-center">
+                    <span>Price</span>
+                    <img
+                      src={images.sortIcon}
+                      className="ml-2"
+                      alt="sort-icon"
+                      width={12}
+                      height={12}
+                    />
+                  </div>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6  py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
+                >
+                  MCR
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
+                >
+                  Collateral
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
+                >
+                  Borrowed
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
+                >
+                  Net Borrowing APR
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-5 text-[15px]/[21px] text-center  text-[#FFFFFF99] font-semibold"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            {/* <tbody className="bg-transparent divide-y divide-[#FFFFFF1A]">
             {
                 marketTable.map((data, index) => {
                     return (
@@ -91,13 +97,12 @@ const CollateralTable = () => {
                     )
                 })
             }
-        </tbody>
-      </table>
-    </div>
+        </tbody> */}
+          </table>
+        </div>
       </div>
-      
     </div>
-  )
-}
+  );
+};
 
-export default CollateralTable
+export default CollateralTable;
