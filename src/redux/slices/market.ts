@@ -8,7 +8,7 @@ const initialState: InitalMarketState = {
     user: {
         userTokenInfo: {
             address: '',
-            balance: 0,
+            balance: '',
             allowance: ''
         },
     },
@@ -36,21 +36,21 @@ export const counterSlice = createSlice({
         },
         fetchIndividualMerketData: (state, action: PayloadAction<HexString>) => {
             if(state.marketData  && state.marketData.length > 0) {
-                const tokenInfo = state.marketData.find((token) => token.tokenAddress === action.payload);
-                state.tokenInfo = {...tokenInfo}
+                const tokenInfo = state.marketData.find((token) => token.tokenAddress === action.payload) as any;
+                state.tokenInfo = {...tokenInfo} 
             }           
         },
 
         getUserInfo: (state, action:PayloadAction<{
             address: HexString,
-            balance: number,
+            balance: string,
             allowance: string
         }>) => {
             const { user } = state;
             const { balance, address, allowance } = action.payload
             state.user.userTokenInfo = {
                 ...user.userTokenInfo,
-                balance,
+                balance:  balance.toString(),
                 address,
                 allowance
             }

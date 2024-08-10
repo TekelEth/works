@@ -1,5 +1,3 @@
-import { collateralMarketTokens } from '../../../__mockdata__/tables';
-import Button from '../../../components/ui/button';
 import { images } from '../../../utilities/images';
 
 const CollateralTable = () => {

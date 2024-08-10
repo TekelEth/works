@@ -58,7 +58,7 @@ const DepositPage = () => {
       dispatch(getUserInfo({
         address: currency.address,
         balance: Number(ethers.formatUnits(tokenBalance)).toFixed(2),
-        allowance: ethers.formatUnits(allowance)
+        allowance: ethers.formatUnits(allowance as number)
       }))
     }
     setInitialLoading(false)

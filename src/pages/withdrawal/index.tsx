@@ -15,7 +15,6 @@ import { fetchIndividualMerketData } from '../../redux/slices/market';
 import { commonContractError } from '../../utilities/error-handler';
 import { toast } from 'react-toastify';
 
-type ILK = string | number;
 
 
 const Withdrawal = () => {

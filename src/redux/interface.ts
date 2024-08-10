@@ -11,8 +11,8 @@ export interface IMarket {
 
 export interface IUser {
     userTokenInfo: {
-        address: string;
-        balance: number;
+        address: string ;
+        balance: string;
         allowance: string
     }
 }
