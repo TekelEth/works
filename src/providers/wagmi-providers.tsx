@@ -9,6 +9,7 @@ import { mainnet, polygon, optimism } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { testchain } from './chain/test-chain';
+import ReduxProvider from '../redux/providers';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [testchain],
@@ -49,7 +50,9 @@ function WagmiProvider({ children }: { children: React.ReactNode }) {
             borderRadius: 'small',
           })}
         >
-          {children}
+          <ReduxProvider>
+             {children}
+          </ReduxProvider>
         </RainbowKitProvider>
       </WagmiConfig>
     </>

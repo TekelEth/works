@@ -2,33 +2,39 @@ import Button from '../../components/ui/button';
 import DepositInput from '../../components/ui/input/deposit-input';
 import { contractAddress, HexString } from '../../constants/contracts-abi';
 import { images } from '../../utilities/images';
-import { prepareWriteContract, readContract, writeContract } from '@wagmi/core';
+import { prepareWriteContract, waitForTransaction, writeContract } from '@wagmi/core';
 import interractionAbi from '../../constants/contracts-abi/interaction.json';
 import tokenAbi from '../../constants/contracts-abi/aUSD.json';
-import spotAbi from '../../constants/contracts-abi/spot.json';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { ICurrency, InitialCurrency } from '../../interface';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import { formatAmount } from '../../utilities/formater';
+import { useAppDispatch, useAppSelector } from '../../redux/dispatch';
+import { fetchIndividualMerketData, getUserInfo } from '../../redux/slices/market';
+import tokenHooks from '../../hooks/token-hooks';
+import { commonContractError } from '../../utilities/error-handler';
+import AmountLoader from '../../components/ui/loader/amount-loader';
 
-type ILK = string | number;
 
 const DepositPage = () => {
+  const dispatch = useAppDispatch();
+  const [currency, setCurrency] = useState<ICurrency>(InitialCurrency);
+  const { tokenInfo, user } = useAppSelector(state => state.market);
   const { address: userAddress } = useAccount();
+  const  {fetchTokenBalance, getAllowanceinfo} = tokenHooks()
   const [loading, setLoading] = useState(false);
   const [initalLoading, setInitialLoading] = useState(false);
-  const [tokenInfo, setTokenInfo] = useState({
-    balance: 0,
-    allowance: 0,
-    mcr: 0
-  });
-  const [currency, setCurrency] = useState<ICurrency>(InitialCurrency);
+  
+
+  useEffect(() => {
+    setCurrency(InitialCurrency)
+  }, [])
+
   const [form, setForm] = useState({
     firstAmount: '',
     secondAmount: '',
   });
-
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({
@@ -37,90 +43,37 @@ const DepositPage = () => {
     });
   };
 
-
   useEffect(() => {
     setForm(({
       ...form,
-      secondAmount: (parseInt(form.firstAmount) / tokenInfo.mcr).toString()
+      secondAmount: (Number(form.firstAmount) / Number(tokenInfo.mcr)).toString()
     }))
   }, [form.firstAmount])
 
-  const fetchTokenTokenBalance = async (address: HexString) => {
-    return new Promise((resolve) => {
-      resolve(
-        readContract({
-          abi: tokenAbi,
-          address: address,
-          functionName: 'balanceOf',
-          args: [userAddress],
-        })
-      );
-    });
-  };
-
-  const fetchTokenILK = async (address: HexString) => {
-    return new Promise((resolve) => {
-      resolve(
-        readContract({
-          abi: interractionAbi,
-          address: contractAddress.interaction,
-          functionName: 'collaterals',
-          args: [address],
-        })
-      );
-    });
-  };
-
-  const fetchMCR = async (address: HexString) => {
-    const tokenILK = (await fetchTokenILK(address)) as ILK[];
-    return new Promise((resolve) => {
-      resolve(
-        readContract({
-          abi: spotAbi,
-          address: contractAddress.spot,
-          functionName: 'ilks',
-          args: [tokenILK[1]],
-        })
-      );
-    });
-  };
-
-  // check allowance function
-  const getAllowance = (collateralAddress: HexString) => {
-    return new Promise((resolve)  => {
-      resolve(
-        readContract({
-          abi: tokenAbi,
-          address: collateralAddress,
-          functionName: 'allowance',
-          args: [userAddress,contractAddress.interaction]
-        })
-      )
-    })
-  }
-
   const calculateTokenBalance = async () => {
     setInitialLoading(true)
-    const balance = (await fetchTokenTokenBalance(currency.address)) as number;
-    const allowance = await getAllowance(currency.address) as number;
-    const mcr = (
-      (await fetchMCR(currency.address)) as ILK[]
-    )[1] as number;
-    const formatedMCR = parseInt(ethers.formatUnits(mcr, 27));
-    setTokenInfo({
-      ...tokenInfo,
-      balance: parseInt(ethers.formatUnits(balance)),
-      allowance: parseInt(ethers.formatUnits(allowance)),
-      mcr: formatedMCR
-    });
-      setInitialLoading(false)
+    const tokenBalance = await fetchTokenBalance(currency.address, userAddress) as number;
+    const allowance = await getAllowanceinfo(currency.address, userAddress)
+    if(tokenBalance) {
+      dispatch(getUserInfo({
+        address: currency.address,
+        balance: Number(ethers.formatUnits(tokenBalance)).toFixed(2),
+        allowance: ethers.formatUnits(allowance)
+      }))
+    }
+    setInitialLoading(false)
   };
 
   useEffect(() => {
+    dispatch(fetchIndividualMerketData(currency.address));
     calculateTokenBalance();
   }, [currency, setCurrency]);
 
-  // approve function
+  useEffect(() => {
+    dispatch(fetchIndividualMerketData(currency.address));
+  },[])
+
+  
   const approveFunction = async (address:HexString, amount: number) => {
     const {request} = await prepareWriteContract({
       address: address,
@@ -129,7 +82,7 @@ const DepositPage = () => {
       args: [contractAddress.interaction, ethers.parseUnits(amount.toString())]
     });
 
-    await writeContract(request);
+   return  await writeContract(request);
   }
 
   const depositFunction = async (address: HexString, amount: string) => {
@@ -140,34 +93,47 @@ const DepositPage = () => {
         args: [userAddress, address, ethers.parseUnits(amount)]
       });
 
-      await writeContract(request);
+     return await writeContract(request);
   }
 
-  // deposit function
-  const depositHandler = () => {    
+  const depositHandler = async () => {
     try {
       setLoading(true);
-      if(parseInt(form.firstAmount) > tokenInfo.allowance) {
-        const amountDifference = parseInt(form.firstAmount) - tokenInfo.allowance;
-        approveFunction(currency.address, amountDifference).then(() => {
-          depositFunction(currency.address, amountDifference.toString())
-        }).then(() => {
-          setLoading(false);
-        })
-      }else {
-        depositFunction(currency.address, form.firstAmount).then(() => {
-          calculateTokenBalance()
-          setLoading(false);
-          setForm({
-            firstAmount: '',
-            secondAmount: ''
-          })
+      const {allowance} = user.userTokenInfo;
+      const {firstAmount} = form;
+      console.log(allowance, "aw")
+      if(Number(firstAmount) > Number(allowance)) {
+      const {hash} = await approveFunction(currency.address, Number(firstAmount));
+      if(hash) {
+        const data = await waitForTransaction({
+          hash,
+          confirmations: 1
+        });
+        if(data) {
+         const {hash} = await depositFunction(currency.address, firstAmount);
+         const data = await waitForTransaction({
+          hash,
+          confirmations: 1
+        });
+        console.log(data, "data")
+        }
+        setForm({
+          firstAmount: '',
+          secondAmount: ''
         })
       }
+      } else {
+        await depositFunction(currency.address, firstAmount);
+        setLoading(false)
+      }
     } catch (error) {
-      setLoading(false)
+      setForm({
+        firstAmount: '',
+        secondAmount: ''
+      })
+      setLoading(false);
+      commonContractError(error)
     }
-
   }
 
   return (
@@ -181,7 +147,7 @@ const DepositPage = () => {
         name='firstAmount'
         onChange={onChange}
         topLeft="Deposit Amount"
-        topRight={initalLoading ? <div className="w-4 h-4 border-2 border-dashed rounded-full animate-spin border-white"></div> : <div> <span>Max</span> {formatAmount(tokenInfo.balance)} {currency.name} </div>}
+        topRight={initalLoading ? <AmountLoader /> : <div> <span>Max</span> {formatAmount(user.userTokenInfo.balance)} {currency.name} </div>}
         currency={currency}
         setCurrency={setCurrency}
       />

@@ -9,6 +9,7 @@ import { readContract } from '@wagmi/core';
 import interractionAbi from '../../../constants/contracts-abi/interaction.json';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
+import { formatAmount } from '../../../utilities/formater';
 
 
 
@@ -37,7 +38,7 @@ const Collaterall:FC<IProp> = () => {
 
   const fetchBalance = async () => {
     const balance = (await fetchCollateralBalance(currency.address)) as number;
-    setCollateralBalance(ethers.formatUnits(balance))
+    setCollateralBalance(Number(ethers.formatUnits(balance)).toFixed(2))
   }
 
   useEffect(() => {
@@ -61,9 +62,9 @@ const Collaterall:FC<IProp> = () => {
             className="mr-2 -mt-6"
           />
           <div className="flex  flex-col">
-            <h1 className="text-bold text-[32px]/[40px]">{collateralBalance ?? 0}</h1>
+            <h1 className="text-bold text-[32px]/[40px]">${formatAmount(collateralBalance) ?? 0}</h1>
             <span className="text-[16px]/[19px] text-[#FFFFFF80]  font-montserrat mt-1">
-              {collateralBalance ?? 0} {currency.name}
+              ${formatAmount(collateralBalance) ?? 0} {currency.name}
             </span>
           </div>
         </div>

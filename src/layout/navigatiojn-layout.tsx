@@ -11,6 +11,7 @@ const NavigationLayout = () => {
   const router = useLocation();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
+  
   return (
     <div className="px-20 py-6 flex items-center justify-between">
       <div className="flex items-center justify-between gap-x-10">
@@ -34,10 +35,9 @@ const NavigationLayout = () => {
         <Button variant={'outline'} className="w-[128px] h-[45px]">
           <img src={images.groupMask} alt="mask-images" width={90} />
         </Button>
-        <ConnectButton showBalance={false} />
-        {/* <Button variant={'primary'} className='w-[158px] h-[45px]' onClick={() => setOpen(true)}>
-                Connect Wallet
-            </Button> */}
+        <ConnectButton 
+          showBalance={false}
+        />
       </div>
       <ModalContainer open={open} close={close}>
         <WalletConnectModal close={close} />

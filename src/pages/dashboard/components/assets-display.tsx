@@ -4,6 +4,7 @@ import { useAccount } from "wagmi";
 import interractionAbi from '../../../constants/contracts-abi/interaction.json';
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
+import { formatAmount } from "../../../utilities/formater";
 
 
 const AssetsDisplay = () => {
@@ -29,8 +30,7 @@ const AssetsDisplay = () => {
     const totalCola = await results.reduce(
       (accumulator: any, currentValue: any) => accumulator + currentValue
     ) as string;
-    console.log(totalCola, "totl")
-    setTotalColaterral(ethers.formatUnits(totalCola))
+    setTotalColaterral(Number(ethers.formatUnits(totalCola)).toFixed(2))
   };
 
 
@@ -44,7 +44,7 @@ const AssetsDisplay = () => {
     <div className="w-full col-span-2 row-span-1  text-[#FFFFFFCC] border-line flex items-center justify-between h-[96px] px-[30px]">
       <div className="flex items-center">
         <p className="font-[500] font-montserrat text-[20px]">
-          Total Collateral: <span className="font-bold">{totalCollateral ?? 0}</span>
+          Total Collateral: <span className="font-bold">${formatAmount(totalCollateral) ?? 0}</span>
         </p>
       </div>
       <div className="flex items-center">

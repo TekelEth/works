@@ -12,6 +12,9 @@ export const abi = {
 
 export type HexString = `0x${string}`;
 
+export type ILK = string | number;
+
+
 export const contractAddress: { [k: string]: HexString } = {
   ausd: '0x620C8A6FC2539C94d900286A2a8b6aB3D4E8e3B9',
   interaction: '0xF662941608059286485d96381aC93Ce8CBf78A52',
@@ -21,6 +24,7 @@ export const contractAddress: { [k: string]: HexString } = {
   tl: '0x921e2D88De991E4e5f609233F2a8b4B7dbf9a138',
   tbx: '0xb218Fa43d1a7d05FC30Dbb08D0f7fdb0ED059073',
 };
+
 
 export const collateralAddresses = [
   contractAddress.wbbtc,

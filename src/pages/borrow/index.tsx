@@ -11,6 +11,7 @@ import { formatAmount } from '../../utilities/formater';
 import tokenAbi from '../../constants/contracts-abi/aUSD.json';
 import { useAccount } from 'wagmi';
 import spotAbi from '../../constants/contracts-abi/spot.json';
+import { commonContractError } from '../../utilities/error-handler';
 
 const Borrow = () => {  
   type ILK = string | number;
@@ -20,8 +21,8 @@ const Borrow = () => {
   const [loading,setLoading] = useState(false);
   const [tokenInfo, setTokenInfo] = useState({
     balance: 0,
-    borrowAPR: 0,
-    netBorrowLimit: 0,
+    borrowAPR: '0',
+    netBorrowLimit: '0',
   });
   const [form, setForm] = useState({
     firstAmount: '',
@@ -38,11 +39,13 @@ const Borrow = () => {
   const borrowAction = async () => {    
     try {
       setLoading(true);
+      console.log(currency.address, form.firstAmount);
+      
       const { request } = await prepareWriteContract({
         address: contractAddress.interaction,
         abi: interractionAbi,
         functionName: 'borrow',
-        args: [ currency.address, ethers.parseUnits(form.firstAmount)]
+        args: [ currency.address, form.firstAmount]
       });
   
       await writeContract(request);
@@ -50,6 +53,7 @@ const Borrow = () => {
     } catch (error) {
       console.log(error)
       setLoading(false)
+      commonContractError(error)
     }
   }
 
@@ -131,15 +135,15 @@ const Borrow = () => {
     const mcr = (
       (await fetchMCR(address)) as ILK[]
     )[1] as number;
-    const formatedMCR = parseInt(ethers.formatUnits(mcr, 27));
-    const formatedLocked =  parseInt(ethers.formatUnits(locked))
+    const formatedMCR = Number(ethers.formatUnits(mcr, 27));
+    const formatedLocked =  Number(ethers.formatUnits(locked))
     const netBorrowLimit = formatedLocked / formatedMCR
 
     setTokenInfo({
       ...tokenInfo,
-      balance: parseInt(ethers.formatUnits(balance)),
-      netBorrowLimit,
-      borrowAPR: parseInt(ethers.formatUnits(borrowAPR)),
+      balance: Number(ethers.formatUnits(balance)),
+      netBorrowLimit: Number(ethers.formatUnits(netBorrowLimit)).toFixed(2),
+      borrowAPR: Number(ethers.formatUnits(borrowAPR)).toFixed(2),
 
     });
       setInitialLoading(false)

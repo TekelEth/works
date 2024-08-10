@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import Button from '../../components/ui/button';
 import DepositInput from '../../components/ui/input/deposit-input';
 import { images } from '../../utilities/images';
@@ -6,35 +6,30 @@ import { ICurrency, InitialCurrency } from '../../interface';
 import { formatAmount } from '../../utilities/formater';
 import { ethers } from 'ethers';
 import { contractAddress, HexString } from '../../constants/contracts-abi';
-import { prepareWriteContract, readContract, writeContract } from '@wagmi/core';
+import { prepareWriteContract, readContract, waitForTransaction, writeContract } from '@wagmi/core';
 import { useAccount } from 'wagmi';
 import interractionAbi from '../../constants/contracts-abi/interaction.json';
-import spotAbi from '../../constants/contracts-abi/spot.json';
+import { useAppDispatch, useAppSelector } from '../../redux/dispatch';
+import AmountLoader from '../../components/ui/loader/amount-loader';
+import { fetchIndividualMerketData } from '../../redux/slices/market';
+import { commonContractError } from '../../utilities/error-handler';
+import { toast } from 'react-toastify';
 
 type ILK = string | number;
 
 
 const Withdrawal = () => {
+  const dispatch = useAppDispatch();
+  const [ processing, setProcessing ] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { tokenInfo } = useAppSelector(state => state.market)
   const { address: userAddress } = useAccount();
   const [currency, setCurrency] = useState<ICurrency>(InitialCurrency);
-  const [tokenInfo, setTokenInfo] = useState({
-    balance: 0,
-    mcr: 0
-  });
+  const [maxBorrow, setMaxBorrow] = useState('0')
+  const [amount, setAmount] = useState('');
+
+  console.log(tokenInfo,  "info");
   
-  const fetchTokenPrice = async (address: HexString) => {
-    return new Promise((resolve) => {
-      resolve(
-        readContract({
-          abi: interractionAbi,
-          address: contractAddress.interaction,
-          functionName: 'collateralPrice',
-          args: [address],
-        })
-      );
-    });
-  };
 
   const availableToBorrowCalculation = async (address: HexString) => {
     return new Promise((resolve) => {
@@ -49,80 +44,56 @@ const Withdrawal = () => {
     });
   };
 
-  const fetchTokenILK = async (address: HexString) => {
-    return new Promise((resolve) => {
-      resolve(
-        readContract({
-          abi: interractionAbi,
-          address: contractAddress.interaction,
-          functionName: 'collaterals',
-          args: [address],
-        })
-      );
-    });
-  };
-
-  const fetchMCR = async (address: HexString) => {
-    const tokenILK = (await fetchTokenILK(address)) as ILK[];
-    return new Promise((resolve) => {
-      resolve(
-        readContract({
-          abi: spotAbi,
-          address: contractAddress.spot,
-          functionName: 'ilks',
-          args: [tokenILK[1]],
-        })
-      );
-    });
-  };
+  const onChange = (e:ChangeEvent<HTMLInputElement>) => {
+    const allowedWithdrawalAmount = 0.95 * Number(maxBorrow)
+    const inputValue = e.target.value;
+    if(Number(inputValue) > allowedWithdrawalAmount) {
+      return
+    }else {
+      setAmount(inputValue);
+    }
+  }
 
   const calculateTokenBalance = async () => {
-    const mcr = (
-      (await fetchMCR(currency.address)) as ILK[]
-    )[1] as number;
+    setLoading(true)
     const availableToBorrow = (await availableToBorrowCalculation(currency.address)) as number;
-    const tokenPrice = (await fetchTokenPrice(currency.address)) as number;
-    const formatedMCR = parseInt(ethers.formatUnits(mcr, 27));
-    const tokenPriceFormat = parseInt(ethers.formatUnits(tokenPrice));
-    const availableToBorrowFormat = ethers.formatUnits(availableToBorrow);    
-    const maxWithdrawableAmount = parseInt(availableToBorrowFormat) * (formatedMCR  / tokenPriceFormat);    
-  console.log((formatedMCR  / tokenPriceFormat), "fffff");
-  
-    console.log(maxWithdrawableAmount, "amount");
-    
-
-    setTokenInfo({
-      ...tokenInfo,
-      balance: maxWithdrawableAmount,
-      mcr: formatedMCR
-    });
+    const availableToBorrowFormat = ethers.formatEther(availableToBorrow);    
+    const maxWithdrawableAmount = Number(availableToBorrowFormat) * (Number(tokenInfo.mcr)  / tokenInfo.tokenPrice);
+    setMaxBorrow(maxWithdrawableAmount.toFixed(2));    
+    setLoading(false)
   };
   
   useEffect(() => {
+    dispatch(fetchIndividualMerketData(currency.address))
     calculateTokenBalance();
   }, [currency, setCurrency]);
 
   const withdrawalAction = async () => {
     try {      
-      if(!tokenInfo.balance || tokenInfo.balance === 0 ) return 0; 
-      // calculate 95%
-      const actuallWithdrawalAmount = ethers.parseUnits((0.95 * tokenInfo.balance).toString());
-      setLoading(true);
+      if(!maxBorrow || Number(maxBorrow) === 0 ) return 0; 
+      setProcessing(true);
       const { request } = await prepareWriteContract({
         address: contractAddress.interaction,
         abi: interractionAbi,
         functionName: 'withdraw',
-        args: [userAddress, currency.address, actuallWithdrawalAmount]
+        args: [userAddress, currency.address, amount]
       });
-        await writeContract(request)
-      setLoading(false);
+      const {hash} =  await writeContract(request)
+      if(hash) {
+         await waitForTransaction({
+          hash,
+          confirmations: 1
+        })
+        setProcessing(false);
+        toast.success('Withdrawal Sucessfull')
+        setAmount('')
+      }
     } catch (error) {
-      console.log(error, "errr")
-      setLoading(false);
+      setProcessing(false)
+      commonContractError(error)
     }
-
-}
-
+  }
+  
   return (
     <div className="pb-8 max-w-[900px] mx-auto">
       <h1 className="text-bold text-[38px] text-center">
@@ -143,27 +114,13 @@ const Withdrawal = () => {
 
       <DepositInput
         dropdown
-        topLeft="Deposit Amount"
-        topRight={`Max ${formatAmount(tokenInfo.balance)} ${currency.name}`}
+        value={amount}
+        onChange={onChange}
+        topLeft="Withdrawal Amount"
+        topRight={loading ? <AmountLoader /> : <div> <span>Max</span> ${formatAmount(maxBorrow)} {currency.name} </div>}
         currency={currency}
         setCurrency={setCurrency}
-      />
-
-      {/* <div className="py-8 flex items-center justify-center">
-        <img src={images.filter} height={50} width={45} alt="filter-icon" />
-      </div> */}
-
-      {/* <DepositInput
-        topLeft="New Borrow Limit"
-        rightCoin={
-          <div className="flex items-center">
-            <img src={images.asud} alt="coin-icon" width={22} height={22} />
-            <div className="text-[16px]/[21px] ml-2 font-montserrat  text-white">
-              aUSD
-            </div>
-          </div>
-        }
-      /> */}
+      />      
       <div className="flex mt-6  justify-center items-center">
         <img
           src={images.danger}
@@ -178,7 +135,7 @@ const Withdrawal = () => {
         </span>
       </div>
 
-      <Button onClick={withdrawalAction} isLoading={loading} variant={'primary'} fullWidth className="mt-10 h-[60px]" >
+      <Button isLoading={processing} onClick={withdrawalAction} variant={'primary'} fullWidth className="mt-10 h-[60px]" >
         {' '}
         Withdraw{' '}
       </Button>

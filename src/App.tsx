@@ -1,4 +1,5 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Borrow,
   Dashboard,
