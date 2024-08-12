@@ -7,7 +7,7 @@ const BorrowFunds = () => {
   return (
     <div className="border-line  col-start-2 px-[30px] py-[20px] col-span-1 row-span-5">
       <div className="flex items-center ">
-        <h1 className="text-[20px] text-bold mr-2">My Borrowed Funds</h1>
+        <h1 className="text-[20px] text-bold mr-2">My Minted Funds</h1>
         <img src={images.sortIcon} alt="img-icon" />
       </div>
       <div className="h-[118px] mt-6 px-6 py-4 flex items-center justify-between border rounded-[15px] border-[#302E2E]">
@@ -30,7 +30,7 @@ const BorrowFunds = () => {
       <div className="my-8 pt-8 border-t border-[#302E2E] px-5 flex items-center justify-between ">
         <Link to={'/dashboard/borrow'}>
           <Button variant={'primary'} className="w-[135px] h-[46px]">
-            Borrow
+            Mint
           </Button>
         </Link>
         <Link to={'/dashboard/repay'}>
@@ -42,7 +42,7 @@ const BorrowFunds = () => {
       <div className="px-5 mt-10 flex items-center justify-between">
         <div className="flex items-center ">
           <span className="text-[15px]  text-white font-montserrat font-normal mr-2">
-            My Borrowed Funds
+            My Minted Funds
           </span>
           <img src={images.sortIcon} width={14} height={14} alt="img-icon" />
         </div>
@@ -73,7 +73,7 @@ const BorrowFunds = () => {
         </div>
         <div className="flex items-center ">
           <span className="text-[14px] mr-2 text-[#FFFFFFB2]">
-            Borrow Limit: $0
+             Limit: $0
           </span>
           <img src={images.sortIcon} width={12} height={12} alt="img-icon" />
         </div>

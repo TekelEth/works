@@ -5,15 +5,16 @@ import { images } from '../../utilities/images';
 import { ICurrency, InitialCurrency } from '../../interface';
 import { formatAmount } from '../../utilities/formater';
 import { ethers } from 'ethers';
-import { contractAddress, HexString } from '../../constants/contracts-abi';
+import { contractAddress, HexString, ILK } from '../../constants/contracts-abi';
 import { prepareWriteContract, readContract, waitForTransaction, writeContract } from '@wagmi/core';
 import { useAccount } from 'wagmi';
 import interractionAbi from '../../constants/contracts-abi/interaction.json';
-import { useAppDispatch, useAppSelector } from '../../redux/dispatch';
+import { useAppDispatch } from '../../redux/dispatch';
 import AmountLoader from '../../components/ui/loader/amount-loader';
 import { fetchIndividualMerketData } from '../../redux/slices/market';
 import { commonContractError } from '../../utilities/error-handler';
 import { toast } from 'react-toastify';
+import useTokenHooks from '../../hooks/token-hooks';
 
 
 
@@ -21,14 +22,12 @@ const Withdrawal = () => {
   const dispatch = useAppDispatch();
   const [ processing, setProcessing ] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { tokenInfo } = useAppSelector(state => state.market)
   const { address: userAddress } = useAccount();
   const [currency, setCurrency] = useState<ICurrency>(InitialCurrency);
   const [maxBorrow, setMaxBorrow] = useState('0')
+  // const [tokenInfo, setTokenInfo]
   const [amount, setAmount] = useState('');
-
-  console.log(tokenInfo,  "info");
-  
+  const { fetchMCR, fetchTokenPrice } = useTokenHooks()
 
   const availableToBorrowCalculation = async (address: HexString) => {
     return new Promise((resolve) => {
@@ -51,13 +50,22 @@ const Withdrawal = () => {
     }else {
       setAmount(inputValue);
     }
-  }
+  }  
 
   const calculateTokenBalance = async () => {
     setLoading(true)
     const availableToBorrow = (await availableToBorrowCalculation(currency.address)) as number;
+    const tokenPrice = (await fetchTokenPrice(
+      currency.address
+    )) as number;
+    const mcr = (
+      (await fetchMCR(currency.address)) as ILK[]
+    )[1] as number;
+    
+    const formatedMCR = Number(ethers.formatUnits(mcr, 27)).toFixed(2);
+    const formatedTokenPrice =  Number(ethers.formatUnits(tokenPrice));
     const availableToBorrowFormat = ethers.formatEther(availableToBorrow);    
-    const maxWithdrawableAmount = Number(availableToBorrowFormat) * (Number(tokenInfo.mcr)  / tokenInfo.tokenPrice);
+    const maxWithdrawableAmount = Number(availableToBorrowFormat) * (Number(formatedMCR)  / formatedTokenPrice);
     setMaxBorrow(maxWithdrawableAmount.toFixed(2));    
     setLoading(false)
   };

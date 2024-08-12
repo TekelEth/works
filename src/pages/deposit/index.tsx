@@ -12,9 +12,9 @@ import { ethers } from 'ethers';
 import { formatAmount } from '../../utilities/formater';
 import { useAppDispatch, useAppSelector } from '../../redux/dispatch';
 import { fetchIndividualMerketData, getUserInfo } from '../../redux/slices/market';
-import tokenHooks from '../../hooks/token-hooks';
 import { commonContractError } from '../../utilities/error-handler';
 import AmountLoader from '../../components/ui/loader/amount-loader';
+import useTokenHooks from '../../hooks/token-hooks';
 
 
 const DepositPage = () => {
@@ -22,7 +22,7 @@ const DepositPage = () => {
   const [currency, setCurrency] = useState<ICurrency>(InitialCurrency);
   const { tokenInfo, user } = useAppSelector(state => state.market);
   const { address: userAddress } = useAccount();
-  const  {fetchTokenBalance, getAllowanceinfo} = tokenHooks()
+  const  {fetchTokenBalance, getAllowanceinfo} = useTokenHooks()
   const [loading, setLoading] = useState(false);
   const [initalLoading, setInitialLoading] = useState(false);
   

@@ -103,7 +103,7 @@ const Hero = () => {
             Total Mint
           </span>
           <h2 className="font-montserrat font-semibold text-[24px] text-white">
-            {formatAmount(Math.floor(parseInt(data.totalSupply as string)))}
+            ${formatAmount(Math.floor(parseInt(data.totalSupply as string)))}
           </h2>
         </CardLayout>
         <CardLayout variant={'outline'} className="rounded-[10px]">
@@ -111,7 +111,7 @@ const Hero = () => {
             Available to Mint
           </span>
           <h2 className="font-montserrat font-semibold text-[24px] text-white">
-            {formatAmount(Math.floor(parseInt(data.availableMint as string)))}
+            ${formatAmount(Math.floor(parseInt(data.availableMint as string)))}
           </h2>
         </CardLayout>
         <CardLayout variant={'outline'} className="rounded-[10px]">
@@ -119,7 +119,7 @@ const Hero = () => {
             Total Collateral Amount
           </span>
           <h2 className="font-montserrat font-semibold text-[24px] text-white">
-            {formatAmount(Math.floor(parseInt(data.totalCollateral as string)))}
+            ${formatAmount(Math.floor(parseInt(data.totalCollateral as string)))}
           </h2>
         </CardLayout>
       </div>
