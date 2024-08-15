@@ -12,6 +12,7 @@ import {
   HexString,
 } from '../../../constants/contracts-abi';
 import { formatAmount } from '../../../utilities/formater';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   useEffect(() => {
@@ -75,18 +76,24 @@ const Hero = () => {
             through diversified liquid staking solutions.
           </span>
           <div className="mt-8 flex items-center gap-x-[25px]">
+          <Link to={'/dashboard/market'}>
+
             <Button
               className="font-nunito rounded-[35px] h-[67px]"
               variant={'primary'}
             >
               Launch dApp
             </Button>
+            </Link>
+          <Link to={'#'}>
+
             <Button
               className="font-nunito rounded-[35px] h-[67px]"
               variant={'outline'}
             >
               View Whitepaper
             </Button>
+            </Link>
           </div>
         </div>
         <div className="z-50 -mt-10 absolute right-4">

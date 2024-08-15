@@ -2,43 +2,39 @@ import { Link } from 'react-router-dom';
 import Button from '../../../components/ui/button';
 import { images } from '../../../utilities/images';
 import { ICurrency, InitialCurrency } from '../../../interface';
-import { FC, useEffect, useState } from 'react';
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import CurrencyDropdown from '../../../components/ui/currencyDropdown';
-import { contractAddress, HexString } from '../../../constants/contracts-abi';
-import { readContract } from '@wagmi/core';
-import interractionAbi from '../../../constants/contracts-abi/interaction.json';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import { formatAmount } from '../../../utilities/formater';
+import useTokenHooks from '../../../hooks/token-hooks';
 
 
 
-interface IProp  {}
+interface IProp  {
+  currency: ICurrency,
+  setCurrency: Dispatch<SetStateAction<ICurrency>>
+}
 
-const Collaterall:FC<IProp> = () => {
+const Collaterall:FC<IProp> = ({currency, setCurrency}) => {
   const { address: userAddress } = useAccount();
   const [displayDropDown, setDisplayDropdown] = useState(false);
-  const [currency, setCurrency] = useState<ICurrency>(InitialCurrency); 
   const toggle = () => setDisplayDropdown(!displayDropDown);
-  const [collateralBalance, setCollateralBalance] = useState('0');
-
-  const fetchCollateralBalance = async (address: HexString) => {
-    return new Promise((resolve) => {
-      resolve(
-        readContract({
-          abi: interractionAbi,
-          address: contractAddress.interaction,
-          functionName: 'locked',
-          args: [address, userAddress],
-        })
-      );
-    });
-  };
+  const [collateralInfo, setCollateralInfo] = useState({
+    price: '0',
+    balance: '0'
+  });
+  const {fetchCollateralBalance, fetchTokenPrice } = useTokenHooks();
 
 
   const fetchBalance = async () => {
-    const balance = (await fetchCollateralBalance(currency.address)) as number;
-    setCollateralBalance(Number(ethers.formatUnits(balance)).toFixed(2))
+    const balance = (await fetchCollateralBalance(currency.address, userAddress)) as number;
+    const tokenPrice = (await fetchTokenPrice(currency.address)) as number
+    setCollateralInfo({
+      ...collateralInfo,
+      balance: Number(ethers.formatUnits(balance)).toFixed(2),
+      price: Number(ethers.formatUnits(tokenPrice)).toFixed(2)
+    })
   }
 
   useEffect(() => {
@@ -62,9 +58,9 @@ const Collaterall:FC<IProp> = () => {
             className="mr-2 -mt-6"
           />
           <div className="flex  flex-col">
-            <h1 className="text-bold text-[32px]/[40px]">${formatAmount(collateralBalance) ?? 0}</h1>
+            <h1 className="text-bold text-[32px]/[40px]">{formatAmount(collateralInfo.balance) ?? 0}</h1>
             <span className="text-[16px]/[19px] text-[#FFFFFF80]  font-montserrat mt-1">
-              ${formatAmount(collateralBalance) ?? 0} {currency.name}
+              ${formatAmount((Number(collateralInfo.balance) * Number(collateralInfo.price))) ?? 0} {currency.name}
             </span>
           </div>
         </div>

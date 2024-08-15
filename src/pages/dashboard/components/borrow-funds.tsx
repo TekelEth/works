@@ -1,9 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ProgressBar from '../../../components/progressbar';
 import Button from '../../../components/ui/button';
 import { images } from '../../../utilities/images';
+import { ICurrency } from '../../../interface';
 
-const BorrowFunds = () => {
+const BorrowFunds = ({currency}: {currency: ICurrency}) => {
+  const navigateHook = useNavigate();
+  const navigate = () => {
+    navigateHook('/dashboard/borrow', {state: { currency: currency.address}})
+  }
   return (
     <div className="border-line  col-start-2 px-[30px] py-[20px] col-span-1 row-span-5">
       <div className="flex items-center ">
@@ -28,11 +33,9 @@ const BorrowFunds = () => {
         </div>
       </div>
       <div className="my-8 pt-8 border-t border-[#302E2E] px-5 flex items-center justify-between ">
-        <Link to={'/dashboard/borrow'}>
-          <Button variant={'primary'} className="w-[135px] h-[46px]">
+          <Button onClick={navigate} variant={'primary'} className="w-[135px] h-[46px]">
             Mint
           </Button>
-        </Link>
         <Link to={'/dashboard/repay'}>
           <Button variant={'outline'} className="w-[135px] h-[46px]">
             Repay

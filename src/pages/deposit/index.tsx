@@ -15,6 +15,9 @@ import { fetchIndividualMerketData, getUserInfo } from '../../redux/slices/marke
 import { commonContractError } from '../../utilities/error-handler';
 import AmountLoader from '../../components/ui/loader/amount-loader';
 import useTokenHooks from '../../hooks/token-hooks';
+import { toast } from 'react-toastify';
+import ApproveModal from './approve';
+import ModalContainer from '../../components/modal';
 
 
 const DepositPage = () => {
@@ -25,7 +28,8 @@ const DepositPage = () => {
   const  {fetchTokenBalance, getAllowanceinfo} = useTokenHooks()
   const [loading, setLoading] = useState(false);
   const [initalLoading, setInitialLoading] = useState(false);
-  
+  const [depositType, setDepositType] = useState('')
+  const [approveModal, setApproveModal] = useState(false);
 
   useEffect(() => {
     setCurrency(InitialCurrency)
@@ -40,13 +44,13 @@ const DepositPage = () => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
-    });
+    });       
   };
 
   useEffect(() => {
     setForm(({
       ...form,
-      secondAmount: (Number(form.firstAmount) / Number(tokenInfo.mcr)).toString()
+      secondAmount: ((Number(form.firstAmount) * Number(tokenInfo.tokenPrice)) / Number(tokenInfo.mcr)).toString()
     }))
   }, [form.firstAmount])
 
@@ -73,18 +77,6 @@ const DepositPage = () => {
     dispatch(fetchIndividualMerketData(currency.address));
   },[])
 
-  
-  const approveFunction = async (address:HexString, amount: number) => {
-    const {request} = await prepareWriteContract({
-      address: address,
-      abi: tokenAbi,
-      functionName: 'approve',
-      args: [contractAddress.interaction, ethers.parseUnits(amount.toString())]
-    });
-
-   return  await writeContract(request);
-  }
-
   const depositFunction = async (address: HexString, amount: string) => {
       const { request } = await prepareWriteContract({
         address: contractAddress.interaction,
@@ -92,40 +84,36 @@ const DepositPage = () => {
         functionName: 'deposit',
         args: [userAddress, address, ethers.parseUnits(amount)]
       });
-
+  console.log(request);
+  
      return await writeContract(request);
   }
 
   const depositHandler = async () => {
     try {
-      setLoading(true);
-      const {allowance} = user.userTokenInfo;
+      const fetchAllowance = await getAllowanceinfo(currency.address, userAddress);
+      const allowance = ethers.formatUnits(fetchAllowance as number)
       const {firstAmount} = form;
       console.log(allowance, "aw")
       if(Number(firstAmount) > Number(allowance)) {
-      const {hash} = await approveFunction(currency.address, Number(firstAmount));
-      if(hash) {
-        const data = await waitForTransaction({
-          hash,
-          confirmations: 1
-        });
-        if(data) {
-         const {hash} = await depositFunction(currency.address, firstAmount);
-         const data = await waitForTransaction({
-          hash,
-          confirmations: 1
-        });
-        console.log(data, "data")
-        }
-        setForm({
+        setApproveModal(true);
+        return ;
+      }      
+      setLoading(true);
+       const {hash} =  await depositFunction(currency.address, firstAmount);
+         if(hash) {
+            const data = await waitForTransaction({
+              hash,
+              confirmations: 1
+            });
+            if(data) {
+                      setForm({
           firstAmount: '',
           secondAmount: ''
         })
-      }
-      } else {
-        await depositFunction(currency.address, firstAmount);
-        setLoading(false)
-      }
+        toast.success('Deposited Successfully')           }
+        }
+
     } catch (error) {
       setForm({
         firstAmount: '',
@@ -138,6 +126,7 @@ const DepositPage = () => {
 
   return (
     <div className="pb-8 max-w-[900px] mx-auto">
+      
       <h1 className="text-bold mb-8 text-[38px] text-center">
         Deposit Collateral
       </h1>
@@ -169,23 +158,14 @@ const DepositPage = () => {
           </div>
         }
       />
-      <div className="flex mt-6  justify-center items-center">
-        <img
-          src={images.danger}
-          alt="danger-icon"
-          width={19}
-          height={19}
-          className="mr-2"
-        />
-        <span className="text-white font-montserrat text-[14px]">
-          Borrowing starts from 15 lisUSD. Make a bigger deposit to be able to
-          borrow lisUSD
-        </span>
-      </div>
       <Button isLoading={loading} disabled={form.firstAmount.length === 0 || loading} onClick={depositHandler} variant={'primary'} fullWidth className="mt-10 h-[60px]">
         {' '}
-        Deposit{' '}
+      {depositType === 'Approve' ? 'Approve' : 'Deposit'}        
       </Button>
+      {approveModal && <ModalContainer close={()=> setApproveModal(false)} open={approveModal}>
+      <ApproveModal address={currency.address} amount={form.firstAmount} setModal={setApproveModal} />
+      </ModalContainer>
+    }
     </div>
   );
 };

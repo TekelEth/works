@@ -83,7 +83,7 @@ const Table = () => {
                       {`$${formatAmount(data.tvl)}`}
                     </span>
                   </td>
-                  <td className="text-[15px]/[21px] px-6 py-7 font-montserrat text-white ">{`${data.mcr}`}</td>
+                  <td className="text-[15px]/[21px] px-6 py-7 font-montserrat text-white ">{`${Number(data.mcr) * 100}%`}</td>
                   <td className="text-[15px]/[21px] px-6 py-7 pl-12 font-montserrat text-white ">{`${data.borrowApr}%`}</td>
                 </tr>
               );

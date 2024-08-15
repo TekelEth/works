@@ -1,8 +1,9 @@
 import { contractAddress, HexString, ILK } from '../constants/contracts-abi';
-import { readContract } from '@wagmi/core';
+import { prepareWriteContract, readContract, writeContract } from '@wagmi/core';
 import tokenAbi from '../constants/contracts-abi/aUSD.json';
 import interractionAbi from '../constants/contracts-abi/interaction.json';
 import spotAbi from '../constants/contracts-abi/spot.json';
+import { ethers } from 'ethers';
 
 const useTokenHooks = () => {
     const fetchTokenBalance = async (address: HexString, userAddress: any) => {
@@ -18,6 +19,16 @@ const useTokenHooks = () => {
         });
     };
 
+    const approveFunction = async (address:HexString, amount: number) => {
+      const {request} = await prepareWriteContract({
+        address: address,
+        abi: tokenAbi,
+        functionName: 'approve',
+        args: [contractAddress.interaction, ethers.parseUnits(amount.toString())]
+      });
+  
+     return  await writeContract(request);
+    }
     const getAllowanceinfo = (collateralAddress: HexString, userAddress: any) => {
         return new Promise((resolve)  => {
           resolve(
@@ -30,6 +41,32 @@ const useTokenHooks = () => {
           )
         })
       }
+
+    const fetchCollateralBalance = async (address: HexString, userAddress?: HexString) => {
+        return new Promise((resolve) => {
+          resolve(
+            readContract({
+              abi: interractionAbi,
+              address: contractAddress.interaction,
+              functionName: 'locked',
+              args: [address, userAddress],
+            })
+          );
+        });
+      };
+
+      const fetchUserBorrowedBalance = async (address: HexString, userAddress?: HexString) => {
+        return new Promise((resolve) => {
+          resolve(
+            readContract({
+              abi: interractionAbi,
+              address: contractAddress.interaction,
+              functionName: 'borrowed',
+              args: [address, userAddress],
+            })
+          );
+        });
+      };
 
       const fetchTokenILK = async (address: HexString) => {
         return new Promise((resolve) => {
@@ -112,9 +149,21 @@ const useTokenHooks = () => {
         });
       };
     
+      const availableToBorrow = (address: HexString, userAddress: HexString) => {
+        return new Promise((resolve) => {
+          resolve(
+            readContract({
+              abi: interractionAbi,
+              address: contractAddress.interaction,
+              functionName: 'availableToBorrow',
+              args: [address, userAddress],  
+            })
+          );
+        });
+
+      }
     
-    
-    return {fetchTokenBalance,  fetchBorrowAPR, fetchDepositTVL, fetchCollateral, getAllowanceinfo, fetchMCR, fetchTokenPrice }
+    return {fetchTokenBalance,availableToBorrow, approveFunction, fetchUserBorrowedBalance, fetchBorrowAPR, fetchDepositTVL, fetchCollateral, getAllowanceinfo, fetchMCR, fetchTokenPrice, fetchCollateralBalance }
 }
 
 export default useTokenHooks
