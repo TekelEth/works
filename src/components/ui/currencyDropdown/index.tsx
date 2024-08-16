@@ -15,7 +15,11 @@ interface IProp {
   setDisplayDropdown: Dispatch<SetStateAction<boolean>>;
 }
 
-const CurrencyDropdown: FC<IProp> = ({ setCurrency, setDisplayDropdown, className='right-[30px] top-[130px]' }) => {
+const CurrencyDropdown: FC<IProp> = ({
+  setCurrency,
+  setDisplayDropdown,
+  className = 'right-[30px] top-[130px]',
+}) => {
   const setAction = (icon: string, name: string, address: HexString) => {
     setCurrency({
       icon,
@@ -26,7 +30,9 @@ const CurrencyDropdown: FC<IProp> = ({ setCurrency, setDisplayDropdown, classNam
   };
 
   return (
-    <div className={`w-[150px] bg-black  z-50 rounded-[12px] absolute  flex flex-col min-h-[220px] p-4 ${className}`}>
+    <div
+      className={`w-[150px] bg-black  z-50 rounded-[12px] absolute  flex flex-col min-h-[220px] p-4 ${className}`}
+    >
       {collateralMarketTokens.map((token, index) => (
         <div
           className="flex cursor-pointer items-center space-x-2 py-3"

@@ -61,7 +61,7 @@ const DepositInput = ({
         >
           {dropdown ? (
             <>
-              <div   className="flex items-center">
+              <div className="flex items-center">
                 <img
                   src={currency?.icon}
                   alt="coin-icon"

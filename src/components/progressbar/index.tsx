@@ -15,4 +15,17 @@ const ProgressBar = ({ progress }: { progress: number }) => {
   );
 };
 
+export const CircularProgressBar = ({ progress }: { progress: number }) => {
+  return (
+    
+      
+<div className="progress-circle-border">
+  <div className="progress-inner-circle">
+    <span className="progress-text">{progress}%</span>
+  </div>
+</div>
+
+  );
+};
+
 export default ProgressBar;

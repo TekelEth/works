@@ -3,7 +3,7 @@ import { ClipLoader } from 'react-spinners';
 import { useAppSelector } from '../../redux/dispatch';
 import { formatAmount } from '../../utilities/formater';
 const Table = () => {
-  const { marketData, loading } = useAppSelector((store) => store.market);  
+  const { marketData, loading } = useAppSelector((store) => store.market);
   return loading ? (
     <div className="w-full flex items-center justify-center h-[250px]">
       {' '}

@@ -49,9 +49,7 @@ function WagmiProvider({ children }: { children: React.ReactNode }) {
             borderRadius: 'small',
           })}
         >
-          <ReduxProvider>
-             {children}
-          </ReduxProvider>
+          <ReduxProvider>{children}</ReduxProvider>
         </RainbowKitProvider>
       </WagmiConfig>
     </>

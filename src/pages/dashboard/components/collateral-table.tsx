@@ -9,7 +9,6 @@ import { ClipLoader } from 'react-spinners';
 import Button from '../../../components/ui/button';
 import { formatAmount } from '../../../utilities/formater';
 
-
 interface IProp {
   icon: string;
   name: string;
@@ -22,11 +21,18 @@ interface IProp {
 
 const CollateralTable = () => {
   const { address: userAddress } = useAccount();
-  const [collateralInfo, setCollaterralInfo] = useState<IProp[] | null>()
-  const { fetchBorrowAPR, fetchUserBorrowedBalance, fetchTokenPrice, fetchCollateralBalance, fetchMCR } = useTokenHooks();
-  const [loading, setLoading ] = useState(false);
- 
+  const [collateralInfo, setCollaterralInfo] = useState<IProp[] | null>();
+  const {
+    fetchBorrowAPR,
+    fetchUserBorrowedBalance,
+    fetchTokenPrice,
+    fetchCollateralBalance,
+    fetchMCR,
+  } = useTokenHooks();
+  const [loading, setLoading] = useState(false);
+
   const fetchMyCollaterallInfo = async () => {
+    if(!userAddress) return
     setLoading(true);
 
     const results = await Promise.all(
@@ -41,7 +47,7 @@ const CollateralTable = () => {
         const formatedMCR = Number(ethers.formatUnits(mcr, 27));
         const tokenPrice = (await fetchTokenPrice(
           token.contractAddress
-        )) as number
+        )) as number;
         const tokenCollaterral = (await fetchCollateralBalance(
           token.contractAddress,
           userAddress
@@ -59,22 +65,23 @@ const CollateralTable = () => {
           collateral: Number(ethers.formatUnits(tokenCollaterral)).toFixed(2),
           mcr: formatedMCR.toFixed(2),
           borrowApr: Number(ethers.formatUnits(borrowAPR)).toFixed(2),
-          borrow: Number(ethers.formatUnits(borrowed)).toFixed(2)
-        }
+          borrow: Number(ethers.formatUnits(borrowed)).toFixed(2),
+        };
       })
     );
 
-    if(results) {
-      setCollaterralInfo(results)
+    if (results) {
+      setCollaterralInfo(results);
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchMyCollaterallInfo()
-  }, [])
+    fetchMyCollaterallInfo();
+  }, []);
 
   return (
+    
     <div className="pt-20">
       <div className=" w-full border border-[#FFFFFF4D] min-h-[400px] rounded-[10px]">
         <div className="flex items-center border-b border-[#FFFFFF4D] justify-between px-[30px] py-[18px]">
@@ -139,42 +146,56 @@ const CollateralTable = () => {
                 </th>
               </tr>
             </thead>
-          {
-            ( loading) ? <div className="w-full flex items-center justify-center h-[250px]">
-            {' '}
-            <ClipLoader color="#FB7200" size={70} />
-          </div> :   <tbody className="bg-transparent divide-y divide-[#FFFFFF1A]">
-            { 
-
-                collateralInfo?.map((data, index) => {
-                    return (
-                        <tr key={index} className='hover:bg-[#FFFFFF0D] cursor-pointer'>
-                        <td className="px-6 py-7  text-center  whitespace-nowrap">
-                            <div className="ml-6 flex items-center">
-                              <img src={data.icon} alt="coin-icon" />
-                              <div className="text-[16px]/[21px] ml-3 font-montserrat text-white">{data.name}</div>
+            {!userAddress? <h2 className='text-white p-12 font-montserrat font-semibold w-full' >Connect Wallet</h2> :  loading ? (
+              <div className="w-full flex items-center justify-center h-[250px]">
+                {' '}
+                <ClipLoader color="#FB7200" size={70} />
+              </div>
+            ) : (
+              <tbody className="bg-transparent divide-y divide-[#FFFFFF1A]">
+                {collateralInfo?.map((data, index) => {
+                  return (
+                    <tr
+                      key={index}
+                      className="hover:bg-[#FFFFFF0D] cursor-pointer"
+                    >
+                      <td className="px-6 py-7  text-center  whitespace-nowrap">
+                        <div className="ml-6 flex items-center">
+                          <img src={data.icon} alt="coin-icon" />
+                          <div className="text-[16px]/[21px] ml-3 font-montserrat text-white">
+                            {data.name}
                           </div>
-                        </td>
-                        <td className="pr-8   py-7  text-center whitespace-nowrap">
-                          <div className="text-[16px]/[21px] font-montserrat text-white ">${formatAmount(data.tokenPrice)}</div>
-                        </td>
-                        <td className="px-6 py-7  text-center whitespace-nowrap">
-                          <span className="text-[16px]/[21px] font-montserrat text-white ">
-                            {`${Number(data.mcr) * 100}%`}
-                          </span>
-                        </td>
-                        <td className="text-[16px]/[21px] px-6 py-7  text-center font-montserrat text-white ">{data.collateral}</td>
-                        <td className="text-[16px]/[21px] px-6 py-7  text-center  font-montserrat text-white ">{data.borrow}</td>
-                        <td className="text-[16px]/[21px] px-6 py-7 text-center font-montserrat text-white ">{data.borrowApr}</td>
-                        <td className="text-[16px]/[21px] px-6 py-7 text-center font-montserrat text-white ">
-                          <Button className='border border-[#FFFFFF66] w-[110px] text-[#FFFFFF99] text-[14px]'>Mint</Button>
-                        </td>
-                      </tr> 
-                    )
-                })
-            }
-           </tbody>
-          }
+                        </div>
+                      </td>
+                      <td className="pr-8   py-7  text-center whitespace-nowrap">
+                        <div className="text-[16px]/[21px] font-montserrat text-white ">
+                          ${formatAmount(data.tokenPrice)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-7  text-center whitespace-nowrap">
+                        <span className="text-[16px]/[21px] font-montserrat text-white ">
+                          {`${Number(data.mcr) * 100}%`}
+                        </span>
+                      </td>
+                      <td className="text-[16px]/[21px] px-6 py-7  text-center font-montserrat text-white ">
+                        {formatAmount(data.collateral)}
+                      </td>
+                      <td className="text-[16px]/[21px] px-6 py-7  text-center  font-montserrat text-white ">
+                        {data.borrow}
+                      </td>
+                      <td className="text-[16px]/[21px] px-6 py-7 text-center font-montserrat text-white ">
+                        {data.borrowApr}
+                      </td>
+                      <td className="text-[16px]/[21px] px-6 py-7 text-center font-montserrat text-white ">
+                        <Button className="border border-[#FFFFFF66] w-[110px] text-[#FFFFFF99] text-[14px]">
+                          Mint
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            )}
           </table>
         </div>
       </div>

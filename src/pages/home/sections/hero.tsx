@@ -58,7 +58,7 @@ const Hero = () => {
     const totalCollateral: any =
       await fetchAllCollateralinfo(collateralAddresses);
     data['totalCollateral'] = ethers.formatUnits(totalCollateral);
-    data['availableMint'] = data['totalCollateral'] - data['totalSupply'];
+    data['collateralRatio'] = data['totalCollateral'] / data['totalSupply'];
     if (data) {
       setData(data);
     }
@@ -76,23 +76,21 @@ const Hero = () => {
             through diversified liquid staking solutions.
           </span>
           <div className="mt-8 flex items-center gap-x-[25px]">
-          <Link to={'/dashboard/market'}>
-
-            <Button
-              className="font-nunito rounded-[35px] h-[67px]"
-              variant={'primary'}
-            >
-              Launch dApp
-            </Button>
+            <Link to={'/dashboard/market'}>
+              <Button
+                className="font-nunito rounded-[35px] h-[67px]"
+                variant={'primary'}
+              >
+                Launch dApp
+              </Button>
             </Link>
-          <Link to={'#'}>
-
-            <Button
-              className="font-nunito rounded-[35px] h-[67px]"
-              variant={'outline'}
-            >
-              View Whitepaper
-            </Button>
+            <Link to={'#'}>
+              <Button
+                className="font-nunito rounded-[35px] h-[67px]"
+                variant={'outline'}
+              >
+                View Whitepaper
+              </Button>
             </Link>
           </div>
         </div>
@@ -110,15 +108,15 @@ const Hero = () => {
             Total Mint
           </span>
           <h2 className="font-montserrat font-semibold text-[24px] text-white">
-            ${formatAmount(Math.floor(parseInt(data.totalSupply as string)))}
+            ${formatAmount(Number(data.totalSupply as string).toFixed(2)) ?? 0}
           </h2>
         </CardLayout>
         <CardLayout variant={'outline'} className="rounded-[10px]">
           <span className="text-gray-100 font-[16px] font-montserrat mb-4">
-            Available to Mint
+            Collateral Ratio
           </span>
           <h2 className="font-montserrat font-semibold text-[24px] text-white">
-            ${formatAmount(Math.floor(parseInt(data.availableMint as string)))}
+            {formatAmount(Number(data.collateralRatio as string).toFixed(2)) ?? 0}
           </h2>
         </CardLayout>
         <CardLayout variant={'outline'} className="rounded-[10px]">
@@ -126,7 +124,8 @@ const Hero = () => {
             Total Collateral Amount
           </span>
           <h2 className="font-montserrat font-semibold text-[24px] text-white">
-            ${formatAmount(Math.floor(parseInt(data.totalCollateral as string)))}
+            $
+            {formatAmount(Number(data.totalCollateral as string).toFixed(2)) ?? 0}
           </h2>
         </CardLayout>
       </div>

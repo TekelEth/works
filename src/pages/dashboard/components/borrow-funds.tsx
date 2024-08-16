@@ -4,11 +4,13 @@ import Button from '../../../components/ui/button';
 import { images } from '../../../utilities/images';
 import { ICurrency } from '../../../interface';
 
-const BorrowFunds = ({currency}: {currency: ICurrency}) => {
+const BorrowFunds = ({ currency }: { currency: ICurrency }) => {
   const navigateHook = useNavigate();
   const navigate = () => {
-    navigateHook('/dashboard/borrow', {state: { currency: currency.address}})
-  }
+    navigateHook('/dashboard/borrow', {
+      state: { currency: currency.address },
+    });
+  };
   return (
     <div className="border-line  col-start-2 px-[30px] py-[20px] col-span-1 row-span-5">
       <div className="flex items-center ">
@@ -33,9 +35,13 @@ const BorrowFunds = ({currency}: {currency: ICurrency}) => {
         </div>
       </div>
       <div className="my-8 pt-8 border-t border-[#302E2E] px-5 flex items-center justify-between ">
-          <Button onClick={navigate} variant={'primary'} className="w-[135px] h-[46px]">
-            Mint
-          </Button>
+        <Button
+          onClick={navigate}
+          variant={'primary'}
+          className="w-[135px] h-[46px]"
+        >
+          Mint
+        </Button>
         <Link to={'/dashboard/repay'}>
           <Button variant={'outline'} className="w-[135px] h-[46px]">
             Repay
@@ -75,9 +81,7 @@ const BorrowFunds = ({currency}: {currency: ICurrency}) => {
           <img src={images.sortIcon} width={12} height={12} alt="img-icon" />
         </div>
         <div className="flex items-center ">
-          <span className="text-[14px] mr-2 text-[#FFFFFFB2]">
-             Limit: $0
-          </span>
+          <span className="text-[14px] mr-2 text-[#FFFFFFB2]">Limit: $0</span>
           <img src={images.sortIcon} width={12} height={12} alt="img-icon" />
         </div>
       </div>

@@ -23,22 +23,21 @@ const buttonVariants = cva(
         true: 'w-full',
       },
       isLoading: {
-        true: 'cursor-default bg-gray-500'
+        true: 'cursor-default bg-gray-500',
       },
     },
     defaultVariants: {
       variant: 'default',
       size: 'default',
     },
-
   }
 );
 
 export interface ButtonProps
   extends BaseButtonProps,
     VariantProps<typeof buttonVariants> {
-      isLoading?: boolean
-    }
+  isLoading?: boolean;
+}
 
 const Button = ({
   variant,
@@ -53,12 +52,11 @@ const Button = ({
     <button
       className={cn(buttonVariants({ variant, size, className, fullWidth }))}
       {...props}
-    > 
+    >
       {children}
-      {
-        isLoading &&   <div className="w-5 h-5 border-2 border-dashed rounded-full animate-spin border-white"></div>
-
-      }
+      {isLoading && (
+        <div className="w-5 h-5 border-2 border-dashed rounded-full animate-spin border-white"></div>
+      )}
     </button>
   );
 };

@@ -11,12 +11,15 @@ import { ToastContainer } from 'react-toastify';
 import useTokenHooks from '../hooks/token-hooks';
 import { ILK } from '../constants/contracts-abi';
 
-
 const DashboardLayout = () => {
   const dispatch = useAppDispatch();
-  const {fetchMCR, fetchTokenPrice, fetchBorrowAPR, fetchCollateral, fetchDepositTVL } = useTokenHooks();
-  
-
+  const {
+    fetchMCR,
+    fetchTokenPrice,
+    fetchBorrowAPR,
+    fetchCollateral,
+    fetchDepositTVL,
+  } = useTokenHooks();
 
   const fetchMarketData = async () => {
     dispatch(setLoading(true));
@@ -33,7 +36,7 @@ const DashboardLayout = () => {
         )) as number;
         const tokenPrice = (await fetchTokenPrice(
           token.contractAddress
-        )) as number
+        )) as number;
         const borrowAPR = (await fetchBorrowAPR(
           token.contractAddress
         )) as number;
@@ -46,7 +49,9 @@ const DashboardLayout = () => {
           collateral: Number(ethers.formatUnits(collateral)).toFixed(2),
           mcr: formatedMCR.toFixed(2),
           borrowApr: Number(ethers.formatUnits(borrowAPR)).toFixed(2),
-          tvl: (Number(ethers.formatUnits(depositTVL)) / formatedMCR).toFixed(2),
+          tvl: (Number(ethers.formatUnits(depositTVL)) / formatedMCR).toFixed(
+            2
+          ),
         };
       })
     );
@@ -57,27 +62,24 @@ const DashboardLayout = () => {
     }
   };
 
-  
-
   useEffect(() => {
     fetchMarketData();
   }, []);
 
-
   return (
     <div className="bg-black pb-24 min-h-screen">
       <TopNavLayout />
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
-        autoClose={5000}  // Close after 5 seconds
-        hideProgressBar={false}  // Show progress bar
-        newestOnTop={false}  // Newest toasts on top
+        autoClose={5000} // Close after 5 seconds
+        hideProgressBar={false} // Show progress bar
+        newestOnTop={false} // Newest toasts on top
         closeOnClick
-        rtl={false}  // Right-to-left support
+        rtl={false} // Right-to-left support
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"        
+        theme="colored"
       />
       <NavigationLayout />
       <br /> <br />
