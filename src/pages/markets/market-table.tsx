@@ -46,7 +46,7 @@ const Table = () => {
               scope="col"
               className="px-6 py-5 text-left text-[18px]/[21px]  text-light-200 font-semibold"
             >
-              Totaol Minted
+              Total Minted
             </th>
             <th
               scope="col"

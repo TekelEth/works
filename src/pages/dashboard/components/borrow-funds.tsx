@@ -4,11 +4,11 @@ import Button from '../../../components/ui/button';
 import { images } from '../../../utilities/images';
 import { ICurrency } from '../../../interface';
 
-const BorrowFunds = ({ currency }: { currency: ICurrency }) => {
+const BorrowFunds = ({ currency, borrowed }: { currency: ICurrency, borrowed: string }) => {
   const navigateHook = useNavigate();
   const navigate = () => {
-    navigateHook('/dashboard/borrow', {
-      state: { currency: currency.address },
+    navigateHook('/dashboard/mint', {
+      state: { currency: currency.address, name: currency.name },
     });
   };
   return (
@@ -27,7 +27,7 @@ const BorrowFunds = ({ currency }: { currency: ICurrency }) => {
             className="mr-2"
           />
           <div className="flex items-center">
-            <h1 className="text-bold text-[32px]/[40px]">0.00</h1>
+            <h1 className="text-bold text-[32px]/[40px]">{borrowed}</h1>
             <span className="text-[16px]/[19px] ml-2 text-[#FFFFFF] font-montserrat mt-1">
               aUSD
             </span>

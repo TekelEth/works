@@ -20,7 +20,7 @@ export const  commonContractError = (e: any) => {
         
       }
     }
-    console.log(e.toString().message, 'error');
-    toast.error('An Error Occured');
+    console.log(e.toString());
+    toast.error(e.toString());
   }
 };

@@ -22,7 +22,7 @@ function App() {
           <Route path="deposit" element={<DepositPage />} />
           <Route path="withdrawal" element={<Withdrawal />} />
           <Route path="repay" element={<Repay />} />
-          <Route path="borrow" element={<Borrow />} />
+          <Route path="mint" element={<Borrow />} />
         </Route>
       </Routes>
     </Router>

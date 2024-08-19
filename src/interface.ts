@@ -12,3 +12,10 @@ export const InitialCurrency = {
   name: collateralMarketTokens[0].name,
   address: collateralMarketTokens[0].contractAddress,
 };
+
+
+export interface ToatalProp {
+  collaterall: string;
+  borrowed: string;
+  netAsset: string
+}

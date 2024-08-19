@@ -1,4 +1,4 @@
-import { prepareWriteContract, writeContract } from '@wagmi/core';
+import { prepareWriteContract, waitForTransaction, writeContract } from '@wagmi/core';
 import Button from '../../components/ui/button';
 import DepositInput from '../../components/ui/input/deposit-input';
 import { contractAddress, HexString } from '../../constants/contracts-abi';
@@ -11,6 +11,8 @@ import { useAccount } from 'wagmi';
 import { commonContractError } from '../../utilities/error-handler';
 import { useLocation } from 'react-router-dom';
 import useTokenHooks from '../../hooks/token-hooks';
+import { toast } from 'react-toastify';
+
 
 const Borrow = () => {
   const location = useLocation();
@@ -21,13 +23,40 @@ const Borrow = () => {
   const [tokenInfo, setTokenInfo] = useState({
     balance: 0,
     borrowAPR: '0',
-    netBorrowLimit: '0',
+    availableToBorrow: '0',
   });
   const [form, setForm] = useState({
     firstAmount: '',
   });
 
-  const { currency: tokenAddress } = location.state;
+  const { currency: tokenAddress, name } = location.state;
+
+  
+  const fetchBorrowAmount = async () => {
+    setInitialLoading(true);
+    const availableToBorrowAmount = (await availableToBorrow(
+      tokenAddress,
+      userAddress as HexString
+    )) as number; 
+    const formatedAvailableToBorrow =  Number(
+      ethers.formatUnits(availableToBorrowAmount)
+    ).toFixed(2);   
+    const borrowAPR = (await fetchBorrowAPR(tokenAddress)) as number;
+    setTokenInfo({
+      ...tokenInfo,
+      borrowAPR: Number(ethers.formatUnits(borrowAPR)).toFixed(2),
+      availableToBorrow: formatedAvailableToBorrow
+    });
+    setForm({
+      ...form,
+      firstAmount: formatedAvailableToBorrow
+    })
+    setInitialLoading(false);
+  };
+
+  useEffect(() => {
+    fetchBorrowAmount();
+  }, [tokenAddress]);
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({
@@ -36,138 +65,42 @@ const Borrow = () => {
     });
   };
 
-  const borrowAction = async () => {
-    console.log(form.firstAmount, 'fff');
+  const borrowAction = async () => {    
+    if(form.firstAmount === '0.00') {
+      toast.error("can't borrow a zero amount")
+      return
+    }
 
+    if(Number(form.firstAmount) > Number(tokenInfo.availableToBorrow)) {
+      toast.error("You can't borrow beyound the available borrow balance");
+      return;
+    };
+    const scaledNumber = Math.round(Number(form.firstAmount) * 10 ** 18);
     try {
       setLoading(true);
       const { request } = await prepareWriteContract({
         address: contractAddress.interaction,
         abi: interractionAbi,
         functionName: 'borrow',
-        args: [tokenAddress, form.firstAmount],
+        args: [tokenAddress, scaledNumber],
       });
-
-      await writeContract(request);
+      const { hash } = await writeContract(request);
+      if (hash) {
+        await waitForTransaction({
+          hash,
+          confirmations: 1,
+        });
+      fetchBorrowAmount()
+      toast.success('Minting Successful')
       setLoading(false);
+
+      }
     } catch (error) {
-      console.log(error);
       setLoading(false);
       commonContractError(error);
     }
   };
 
-  // const fetchTokenTokenBalance = async (address: HexString) => {
-  //   return new Promise((resolve) => {
-  //     resolve(
-  //       readContract({
-  //         abi: tokenAbi,
-  //         address: address,
-  //         functionName: 'balanceOf',
-  //         args: [userAddress],
-  //       })
-  //     );
-  //   });
-  // };
-
-  // const fetchTokenILK = async (address: HexString) => {
-  //   return new Promise((resolve) => {
-  //     resolve(
-  //       readContract({
-  //         abi: interractionAbi,
-  //         address: contractAddress.interaction,
-  //         functionName: 'collaterals',
-  //         args: [address],
-  //       })
-  //     );
-  //   });
-  // };
-
-  // const fetchMCR = async (address: HexString) => {
-  //   const tokenILK = (await fetchTokenILK(address)) as ILK[];
-  //   return new Promise((resolve) => {
-  //     resolve(
-  //       readContract({
-  //         abi: spotAbi,
-  //         address: contractAddress.spot,
-  //         functionName: 'ilks',
-  //         args: [tokenILK[1]],
-  //       })
-  //     );
-  //   });
-  // };
-
-  // const fetchBorrowAPR = async (address: HexString) => {
-  //   return new Promise((resolve) => {
-  //     resolve(
-  //       readContract({
-  //         address: contractAddress.interaction,
-  //         abi: interractionAbi,
-  //         functionName: 'borrowApr',
-  //         args: [address],
-  //       })
-  //     );
-  //   });
-  // };
-
-  // const lockedBorrow = async (address: HexString) => {
-  //   return new Promise((resolve) => {
-  //     resolve(
-  //       readContract({
-  //         address: contractAddress.interaction,
-  //         abi: interractionAbi,
-  //         functionName: 'locked',
-  //         args: [address, userAddress]
-  //       })
-  //     );
-  //   });
-  // };
-
-  // const calculateTokenBalance = async () => {
-  // const {address} = currency;
-  // setInitialLoading(true)
-  // const balance = (await fetchTokenTokenBalance(address)) as number;
-  // const borrowAPR = (await fetchBorrowAPR(address)) as number;
-  // const locked = await lockedBorrow(address)  as number
-  // console.log(locked);
-
-  // const mcr = (
-  //   (await fetchMCR(address)) as ILK[]
-  // )[1] as number;
-  // const formatedMCR = Number(ethers.formatUnits(mcr, 27));
-  // const formatedLocked =  Number(ethers.formatUnits(locked))
-  // const netBorrowLimit = formatedLocked / formatedMCR
-
-  // setTokenInfo({
-  //   ...tokenInfo,
-  //   balance: Number(ethers.formatUnits(balance)),
-  //   netBorrowLimit: Number(ethers.formatUnits(netBorrowLimit)).toFixed(2),
-  //   borrowAPR: Number(ethers.formatUnits(borrowAPR)).toFixed(2),
-
-  // });
-  //   setInitialLoading(false)
-  // };
-
-  const fetchBorrowAmount = async () => {
-    setInitialLoading(true);
-    const availableToBorrowAmount = (await availableToBorrow(
-      tokenAddress,
-      userAddress as HexString
-    )) as number;
-    const borrowAPR = (await fetchBorrowAPR(tokenAddress)) as number;
-    setTokenInfo({
-      ...tokenInfo,
-      borrowAPR: Number(ethers.formatUnits(borrowAPR)).toFixed(2),
-      netBorrowLimit: Number(
-        ethers.formatUnits(availableToBorrowAmount)
-      ).toFixed(2),
-    });
-    setInitialLoading(false);
-  };
-
-  useEffect(() => {
-    fetchBorrowAmount();
-  }, [tokenAddress]);
 
 
   return (
@@ -198,7 +131,7 @@ const Borrow = () => {
           ) : (
             <div>
               {' '}
-              <span>Max</span> {formatAmount(tokenInfo.netBorrowLimit)}{' '}
+              <span >Max {name} to Mint</span> {formatAmount(tokenInfo.availableToBorrow)} aUSD
             </div>
           )
         }
@@ -211,21 +144,6 @@ const Borrow = () => {
           </div>
         }
       />
-      {/* <div className="flex mt-6 mx-auto max-w-[700px]  justify-center items-center">
-        <img
-          src={images.danger}
-          alt="danger-icon"
-          width={19}
-          height={19}
-          className=""
-        />
-        <span className="text-white text-center font-montserrat text-[14px]">
-          You are above a 75% borrowing usage. It is recommended that you
-          decrease this by repaying loans or providing more collateral to lower
-          the risk of a liquidation event
-        </span>
-      </div> */}
-
       <Button
         isLoading={loading}
         disabled={

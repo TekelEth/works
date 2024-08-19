@@ -28,7 +28,7 @@ const DepositInput = ({
 }: IProp) => {
   const [displayDropDown, setDisplayDropdown] = useState(false);
 
-  const toggle = () => setDisplayDropdown(!displayDropDown);
+  const toggle = () => dropdown && setDisplayDropdown(!displayDropDown);
   return (
     <div className="w-full border relative border-[#FFFFFF4D] bg-[#FFFFFF0D] rounded-[15px] py-[24px] px-[30px] flex flex-col">
       <div className="flex items-center justify-between pb-4">
@@ -41,7 +41,7 @@ const DepositInput = ({
         </div>
         {topRight && (
           <div className="flex items-center">
-            <span className="text-[14px] uppercase mr-2 text-[#FFFFFFB2] font-montserrat">
+            <span className="text-[14px]  mr-2 text-[#FFFFFFB2] font-montserrat">
               {topRight}
             </span>
             <img src={images.sortIcon} width={14} height={14} alt="sort-icon" />
@@ -56,7 +56,7 @@ const DepositInput = ({
           {...prop}
         />
         <div
-          className="border-l flex pl-5 border-[#FFFFFF66] cursor-pointer"
+          className={`border-l flex pl-5 border-[#FFFFFF66] ${dropdown ? 'cursor-pointer': 'cursor-default'}`}
           onClick={toggle}
         >
           {dropdown ? (
@@ -74,7 +74,7 @@ const DepositInput = ({
               </div>
               <img
                 src={images.arrowDown}
-                className="w-[12px] cursor-pointer ml-2"
+                className={`w-[12px] ${dropdown ? 'cursor-pointer': 'cursor-default'} ml-2`}
                 alt="arrow-down"
               />
             </>

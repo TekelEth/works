@@ -34,6 +34,8 @@ const demoAppInfo = {
   appName: 'TurborAnchor',
 };
 
+export const publicClientValue = publicClient
+
 function WagmiProvider({ children }: { children: React.ReactNode }) {
   return (
     <>
