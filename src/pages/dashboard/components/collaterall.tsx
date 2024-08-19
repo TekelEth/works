@@ -4,7 +4,6 @@ import { images } from '../../../utilities/images';
 import { ICurrency } from '../../../interface';
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import CurrencyDropdown from '../../../components/ui/currencyDropdown';
-import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import { formatAmount } from '../../../utilities/formater';
 import useTokenHooks from '../../../hooks/token-hooks';
@@ -15,7 +14,6 @@ interface IProp {
 }
 
 const Collaterall: FC<IProp> = ({ currency, setCurrency }) => {
-  const { address: userAddress } = useAccount();
   const [displayDropDown, setDisplayDropdown] = useState(false);
   const toggle = () => setDisplayDropdown(!displayDropDown);
   const [collateralInfo, setCollateralInfo] = useState({
@@ -27,7 +25,6 @@ const Collaterall: FC<IProp> = ({ currency, setCurrency }) => {
   const fetchBalance = async () => {
     const balance = (await fetchCollateralBalance(
       currency.address,
-      userAddress
     )) as number;
     const tokenPrice = (await fetchTokenPrice(currency.address)) as number;
     setCollateralInfo({

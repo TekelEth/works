@@ -97,8 +97,6 @@ const DepositPage = () => {
       functionName: 'deposit',
       args: [userAddress, address, ethers.parseUnits(amount)],
     });
-    console.log(request);
-
     return await writeContract(request);
   };
 
@@ -110,7 +108,6 @@ const DepositPage = () => {
       );
       const allowance = ethers.formatUnits(fetchAllowance as number);
       const { firstAmount } = form;
-      console.log(allowance, 'aw');
       if (Number(firstAmount) > Number(allowance)) {
         setApproveModal(true);
         return;
@@ -214,53 +211,3 @@ const DepositPage = () => {
 
 export default DepositPage;
 
-// const [netDepositLimit, setNetDepositLimit] = useState(0);
-
-// const fetchLocked = async() => {
-//   return new Promise((resolve) => {
-//     resolve(
-//       readContract({
-//         abi: interractionAbi,
-//         address: contractAddress.interaction,
-//         functionName: 'locked',
-//         args: []
-//       })
-//     )
-//   })
-// }
-
-// const fetchTokenILK = async(address: HexString) => {
-//   return new Promise((resolve) => {
-//     resolve(
-//       readContract({
-//         abi: interractionAbi,
-//         address: contractAddress.interaction,
-//         functionName: 'collaterals',
-//         args: [address]
-//       })
-//     )
-//   })
-// }
-
-// const fetchMCR = async (address: HexString) => {
-//   const tokenILK = await fetchTokenILK(address) as ILK[];
-//   return new Promise((resolve) => {
-//     resolve(
-//       readContract({
-//         abi: spotAbi,
-//         address: contractAddress.spot,
-//         functionName: 'ilks',
-//         args: [tokenILK[1]]
-//       })
-//     )
-//   })
-// }
-
-// const fetchNetDepositLimit = async () => {
-//   const mcr = await fetchMCR(contractAddress.wbbtc);;
-//   const fetchedLocked = await fetchLocked();
-// }
-
-// useEffect(() => {
-//   fetchNetDepositLimit()
-// }, [])

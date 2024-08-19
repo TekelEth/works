@@ -30,7 +30,9 @@ const Withdrawal = () => {
   const [currency, setCurrency] = useState<ICurrency>(InitialCurrency);
   const [maxBorrow, setMaxBorrow] = useState({
     max: '0',
-    limit: '0'
+    limit: '0',
+    utilization: 0,
+    mcr: '0'
   });
   const [amount, setAmount] = useState('');
   const { fetchMCR, fetchTokenPrice, lockedBorrow } = useTokenHooks();
@@ -49,12 +51,17 @@ const Withdrawal = () => {
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const allowedWithdrawalAmount = 0.95 * Number(maxBorrow);
     const inputValue = e.target.value;
+    const allowedWithdrawalAmount = 0.95 * Number(maxBorrow.max);
     if (Number(inputValue) > allowedWithdrawalAmount) {
       return;
     } else {
       setAmount(inputValue);
+      const borrowUtilization = (Number(maxBorrow.limit) - Number(inputValue)) / Number(maxBorrow.max)
+    setMaxBorrow({
+      ...maxBorrow,
+      utilization: borrowUtilization
+    })
     }
   };
 
@@ -68,17 +75,17 @@ const Withdrawal = () => {
     const mcr = ((await fetchMCR(currency.address)) as ILK[])[1] as number;
     const locked = await lockedBorrow(currency.address, userAddress) as number;
     const formatedMCR = Number(ethers.formatUnits(mcr, 27)).toFixed(2);
-    const formatedLocked = Number(ethers.formatUnits(locked));
-    console.log(formatedLocked, "locked");
-    
+    const formatedLocked = Number(ethers.formatUnits(locked));    
     const formatedTokenPrice = Number(ethers.formatUnits(tokenPrice));
     const availableToBorrowFormat = ethers.formatEther(availableToBorrow);
     const maxWithdrawableAmount =
       Number(availableToBorrowFormat) *
       (Number(formatedMCR) / formatedTokenPrice);
     setMaxBorrow({
+      ...maxBorrow,
       max: maxWithdrawableAmount.toFixed(2).toString(),
-      limit: (formatedLocked / Number(formatedMCR)).toFixed(2)
+      limit: (formatedLocked / Number(formatedMCR)).toFixed(2),
+  
     });
     setLoading(false);
   };
@@ -86,7 +93,13 @@ const Withdrawal = () => {
   useEffect(() => {
     dispatch(fetchIndividualMerketData(currency.address));
     calculateTokenBalance();
+    setMaxBorrow({
+      ...maxBorrow,
+      utilization: 0
+    })
+    setAmount('')
   }, [currency, setCurrency]);
+  
 
   const withdrawalAction = async () => {
     try {
@@ -105,6 +118,7 @@ const Withdrawal = () => {
           confirmations: 1,
         });
         setProcessing(false);
+        calculateTokenBalance();
         toast.success('Withdrawal Sucessfull');
         setAmount('');
       }
@@ -167,8 +181,9 @@ const Withdrawal = () => {
 
       <div className='border-[#FFFFFF4D] px-[34px] h-[230px] border flex items-center justify-between bg-[#FFFFFF0D] rounded-[15px] mt-10'>
         <span className="text-[14px] mr-2 text-[#FFFFFFCC] font-montserrat"> Borrow Utilizaton </span>
-        <CircularProgressBar progress={80} />
-      
+          <div className='w-[150px] h-[150px]'>
+            <CircularProgressBar progress={Number(maxBorrow.utilization.toFixed(2))/100} />
+          </div>
         <span className="text-[14px] mr-2 text-[#FFFFFFCC] font-montserrat">Withdrawal Limit {maxBorrow.max} aUSD</span>
       </div>
     

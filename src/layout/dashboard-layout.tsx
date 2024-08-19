@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import TopNavLayout from './topNav';
-import NavigationLayout from './navigatiojn-layout';
+import NavigationLayout from './navigation-layout';
 import { collateralMarketTokens } from '../__mockdata__/tables';
 import { ethers } from 'ethers';
 import { setLoading, setMarketData } from '../redux/slices/market';

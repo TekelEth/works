@@ -4,8 +4,10 @@ import tokenAbi from '../constants/contracts-abi/aUSD.json';
 import interractionAbi from '../constants/contracts-abi/interaction.json';
 import spotAbi from '../constants/contracts-abi/spot.json';
 import { ethers } from 'ethers';
+import { useAccount } from 'wagmi';
 
 const useTokenHooks = () => {
+  const {address: userAddress} = useAccount()
   const fetchTokenBalance = async (address: HexString, userAddress: any) => {
     return new Promise((resolve) => {
       resolve(
@@ -58,7 +60,6 @@ const useTokenHooks = () => {
 
   const fetchCollateralBalance = async (
     address: HexString,
-    userAddress?: HexString
   ) => {
     return new Promise((resolve) => {
       resolve(
@@ -74,7 +75,6 @@ const useTokenHooks = () => {
 
   const fetchUserBorrowedBalance = async (
     address: HexString,
-    userAddress?: HexString
   ) => {
     return new Promise((resolve) => {
       resolve(

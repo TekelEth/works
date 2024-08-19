@@ -1,3 +1,6 @@
+import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+
 const ProgressBar = ({ progress }: { progress: number }) => {
   return (
     <div className="w-full">
@@ -16,14 +19,23 @@ const ProgressBar = ({ progress }: { progress: number }) => {
 };
 
 export const CircularProgressBar = ({ progress }: { progress: number }) => {
+  console.log(progress * 100, "rrr");
+  
   return (
     
-      
-<div className="progress-circle-border">
-  <div className="progress-inner-circle">
-    <span className="progress-text">{progress}%</span>
-  </div>
-</div>
+    <CircularProgressbar
+      value={progress} 
+      maxValue={1} 
+      text={`${(progress * 100).toFixed(2)}%`} 
+      styles={buildStyles({
+        pathColor: `#FB7200`,
+        textColor: '#fff',
+        textSize: 14,
+        trailColor: '#FB72004D',
+        backgroundColor: '#FB7200',
+    
+      })}
+    />
 
   );
 };

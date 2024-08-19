@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import useTokenHooks from '../../../hooks/token-hooks';
 import { images } from '../../../utilities/images';
 import { collateralMarketTokens } from '../../../__mockdata__/tables';
-import { ILK } from '../../../constants/contracts-abi';
+import { HexString, ILK } from '../../../constants/contracts-abi';
 import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
 import { ClipLoader } from 'react-spinners';
 import Button from '../../../components/ui/button';
 import { formatAmount } from '../../../utilities/formater';
+import { useNavigate } from 'react-router-dom';
 
 interface IProp {
   icon: string;
@@ -17,10 +18,17 @@ interface IProp {
   mcr: string;
   borrowApr: string;
   borrow: string;
+  address: HexString
 }
 
 const CollateralTable = () => {
   const { address: userAddress } = useAccount();
+  const navigateHook = useNavigate();
+  const navigate = (tokenAddress: HexString, name: string) => {
+    navigateHook('/dashboard/mint', {
+      state: { currency: tokenAddress, name},
+    });
+  };
   const [collateralInfo, setCollaterralInfo] = useState<IProp[] | null>();
   const {
     fetchBorrowAPR,
@@ -50,17 +58,16 @@ const CollateralTable = () => {
         )) as number;
         const tokenCollaterral = (await fetchCollateralBalance(
           token.contractAddress,
-          userAddress
         )) as number;
 
         const borrowed = (await fetchUserBorrowedBalance(
           token.contractAddress,
-          userAddress
         )) as number;
 
         return {
           icon: token.icon,
           name: token.name,
+          address: token.contractAddress,
           tokenPrice: Number(ethers.formatUnits(tokenPrice)),
           collateral: Number(ethers.formatUnits(tokenCollaterral)).toFixed(2),
           mcr: formatedMCR.toFixed(2),
@@ -187,7 +194,7 @@ const CollateralTable = () => {
                         {data.borrowApr}
                       </td>
                       <td className="text-[16px]/[21px] px-6 py-7 text-center font-montserrat text-white ">
-                        <Button className="border border-[#FFFFFF66] w-[110px] text-[#FFFFFF99] text-[14px]">
+                        <Button className="border border-[#FFFFFF66] w-[110px] text-[#FFFFFF99] text-[14px]" onClick={() => navigate(data.address, data.name)}>
                           Mint
                         </Button>
                       </td>

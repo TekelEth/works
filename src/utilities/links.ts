@@ -72,6 +72,6 @@ export const dashbaordLinks = [
   },
   {
     title: 'Docs',
-    href: '/dashbaord/docs',
+    href: '#',
   },
 ];
