@@ -11,7 +11,8 @@ const NavigationLayout = () => {
   const router = useLocation();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
-
+  console.log(router.pathname);
+  
   return (
     <div className="px-20 py-6 flex items-center justify-between">
       <div className="flex items-center justify-between gap-x-10">
@@ -19,7 +20,7 @@ const NavigationLayout = () => {
           <img src={images.logo} width={189} height={40} alt="logo-image" />
         </Link>
         {dashbaordLinks.map((link, index) => {
-          const active = router.pathname.includes(link.href);
+          const active = router.pathname.includes(link.href)
           return (
             <Link to={link.href} key={index}>
               <span
@@ -35,7 +36,7 @@ const NavigationLayout = () => {
         <Button variant={'outline'} className="w-[128px] h-[45px]">
           <img src={images.groupMask} alt="mask-images" width={90} />
         </Button>
-        <ConnectButton showBalance={false} />
+        <ConnectButton showBalance={false}  />
       </div>
       <ModalContainer open={open} close={close}>
         <WalletConnectModal close={close} />

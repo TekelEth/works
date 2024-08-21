@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import Button from '../../components/ui/button';
 import DepositInput from '../../components/ui/input/deposit-input';
-import { collateralAddresses, contractAddress, HexString } from '../../constants/contracts-abi';
+import { collateralAddresses, contractAddress, HexString, ILK } from '../../constants/contracts-abi';
 import useTokenHooks from '../../hooks/token-hooks';
 import { images } from '../../utilities/images';
 import { ethers } from 'ethers';
@@ -9,19 +9,29 @@ import { ICurrency, InitialCurrency } from '../../interface';
 import interractionAbi from '../../constants/contracts-abi/interaction.json';
 import { toast } from 'react-toastify';
 import { commonContractError } from '../../utilities/error-handler';
-import { prepareWriteContract, waitForTransaction, writeContract } from '@wagmi/core';
+import { prepareWriteContract, readContract, waitForTransaction, writeContract } from '@wagmi/core';
 import { useAccount } from 'wagmi';
 import ModalContainer from '../../components/modal';
 import ApproveModal from '../deposit/approve';
+import Utilization from '../dashboard/components/utilization';
 
 const Repay = () => {
   const [loading, setLoading] = useState(false);
   const {address: userAddress} = useAccount();
+  const { fetchMCR, fetchTokenPrice, lockedBorrow } = useTokenHooks();
   const [approveModal, setApproveModal] = useState(false);
   const [currency, setCurrency] = useState<ICurrency>(InitialCurrency);
   const [form, setForm] = useState({
     firstAmount: '',
   });
+
+  const [maxBorrow, setMaxBorrow] = useState({
+    max: '0',
+    limit: '0',
+    utilization: 0,
+    mcr: '0'
+  });
+
   const { fetchUserBorrowedBalance, getAllowanceinfo,  } = useTokenHooks();
   const [borrowInfo, setBorrowInfo] = useState({
     borrowed: '0',
@@ -52,10 +62,51 @@ const Repay = () => {
       [e.target.name]: e.target.value,
     });
   };
+
+
+  const availableToBorrowCalculation = async (address: HexString) => {
+    return new Promise((resolve) => {
+      resolve(
+        readContract({
+          abi: interractionAbi,
+          address: contractAddress.interaction,
+          functionName: 'availableToBorrow',
+          args: [address, userAddress],
+        })  
+      );
+    });
+  };
   
+  
+  const calculateTokenBalance = async () => {
+    if(!userAddress) return ;
+    setLoading(true);
+    const availableToBorrow = (await availableToBorrowCalculation(
+      currency.address
+    )) as number;
+    const tokenPrice = (await fetchTokenPrice(currency.address)) as number;
+    const mcr = ((await fetchMCR(currency.address)) as ILK[])[1] as number;
+    const locked = await lockedBorrow(currency.address, userAddress) as number;
+    const formatedMCR = Number(ethers.formatUnits(mcr, 27)).toFixed(2);
+    const formatedLocked = Number(ethers.formatUnits(locked));    
+    const formatedTokenPrice = Number(ethers.formatUnits(tokenPrice));
+    const availableToBorrowFormat = ethers.formatEther(availableToBorrow);
+    const maxWithdrawableAmount =
+      Number(availableToBorrowFormat) *
+      (Number(formatedMCR) / formatedTokenPrice);
+    setMaxBorrow({
+      ...maxBorrow,
+      max: maxWithdrawableAmount.toFixed(2).toString(),
+      limit: (formatedLocked / Number(formatedMCR)).toFixed(2),
+  
+    });
+    setLoading(false);
+  };
+
 
 
   useEffect(() => {
+    calculateTokenBalance()
     fetchBorrowInfo(collateralAddresses)
     setCurrency(InitialCurrency);
   }, [])
@@ -127,7 +178,7 @@ const Repay = () => {
         setCurrency={setCurrency}
         onChange={onChange}
         topLeft="Repay Amount"
-        topRight={`Max ${borrowInfo.borrowed} USDT`}
+        topRight={`Max ${borrowInfo.borrowed} aUSD`}
         rightCoin={
           <div className="flex items-center">
             <img src={images.asud} alt="coin-icon" width={22} height={22} />
@@ -137,21 +188,7 @@ const Repay = () => {
           </div>
         }
       />
-      {/* <div className="flex mt-6 mx-auto max-w-[700px]  justify-center items-center">
-        <img
-          src={images.danger}
-          alt="danger-icon"
-          width={19}
-          height={19}
-          className=""
-        />
-        <span className="text-white text-center font-montserrat text-[14px]">
-          You are above a 75% borrowing usage. It is recommended that you
-          decrease this by repaying loans or providing more collateral to lower
-          the risk of a liquidation event
-        </span>
-      </div> */}
-
+    <Utilization maxBorrow={maxBorrow} />
       <Button 
         variant={'primary'} 
         fullWidth className="mt-10 h-[70px]"

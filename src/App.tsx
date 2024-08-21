@@ -10,8 +10,18 @@ import {
   Withdrawal,
 } from './pages';
 import DashboardLayout from './layout/dashboard-layout';
+import AOS from 'aos'
+import 'aos/dist/aos.css';
+import { useEffect } from 'react';
 
 function App() {
+  useEffect(() => {
+    AOS.init({
+      duration: 1200, 
+      once: true
+    })
+  })
+
   return (
     <Router>
       <Routes>

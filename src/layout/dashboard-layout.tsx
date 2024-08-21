@@ -11,8 +11,10 @@ import { ToastContainer } from 'react-toastify';
 import useTokenHooks from '../hooks/token-hooks';
 import { ILK } from '../constants/contracts-abi';
 
+
 const DashboardLayout = () => {
   const dispatch = useAppDispatch();
+
   const {
     fetchMCR,
     fetchTokenPrice,
@@ -62,6 +64,9 @@ const DashboardLayout = () => {
     }
   };
 
+  
+
+
   useEffect(() => {
     fetchMarketData();
   }, []);
@@ -71,11 +76,11 @@ const DashboardLayout = () => {
       <TopNavLayout />
       <ToastContainer
         position="top-right"
-        autoClose={5000} // Close after 5 seconds
-        hideProgressBar={false} // Show progress bar
-        newestOnTop={false} // Newest toasts on top
+        autoClose={5000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
         closeOnClick
-        rtl={false} // Right-to-left support
+        rtl={false} 
         pauseOnFocusLoss
         draggable
         pauseOnHover

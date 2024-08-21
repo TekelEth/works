@@ -25,8 +25,8 @@ const Features = () => {
             className="col-span-1 row-span-1"
             variant={'white'}
           >
-            <div className="flex items-center">
-              <div className="bg-primary-100 w-[140px] h-[120px] rounded-[22px] mr-6 flex items-center justify-center">
+            <div  className="flex items-center">
+              <div data-aos="zoom-in" className="bg-primary-100 w-[140px] h-[120px] rounded-[22px] mr-6 flex items-center justify-center">
                 <img src={feature.icon} alt="feature-icon" />
               </div>
               <div className="flex flex-col w-[433px]">

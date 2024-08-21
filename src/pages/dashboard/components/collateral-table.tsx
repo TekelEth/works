@@ -24,8 +24,8 @@ interface IProp {
 const CollateralTable = () => {
   const { address: userAddress } = useAccount();
   const navigateHook = useNavigate();
-  const navigate = (tokenAddress: HexString, name: string) => {
-    navigateHook('/dashboard/mint', {
+  const navigate = (tokenAddress: HexString, name: string, type: string) => {
+    navigateHook(`/dashboard/${type}`, {
       state: { currency: tokenAddress, name},
     });
   };
@@ -191,12 +191,16 @@ const CollateralTable = () => {
                         {data.borrow}
                       </td>
                       <td className="text-[16px]/[21px] px-6 py-7 text-center font-montserrat text-white ">
-                        {data.borrowApr}
+                        {Number(data.borrowApr) * 100}%
                       </td>
                       <td className="text-[16px]/[21px] px-6 py-7 text-center font-montserrat text-white ">
-                        <Button className="border border-[#FFFFFF66] w-[110px] text-[#FFFFFF99] text-[14px]" onClick={() => navigate(data.address, data.name)}>
+                      <Button className="border mr-4 border-[#FFFFFF66]  hover:border-white hover:text-white w-[110px] text-[#FFFFFF99] text-[14px]" onClick={() => navigate(data.address, data.name, "deposit")}>
+                            Deposit
+                        </Button>
+                        <Button className="border  hover:text-white hover:border-white border-[#FFFFFF66] w-[110px] text-[#FFFFFF99] text-[14px]" onClick={() => navigate(data.address, data.name, "mint")}>
                           Mint
                         </Button>
+                        
                       </td>
                     </tr>
                   );

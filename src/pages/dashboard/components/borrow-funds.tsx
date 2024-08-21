@@ -3,14 +3,49 @@ import ProgressBar from '../../../components/progressbar';
 import Button from '../../../components/ui/button';
 import { images } from '../../../utilities/images';
 import { ICurrency } from '../../../interface';
+import { ethers } from 'ethers';
+import { useAccount } from 'wagmi';
+import useTokenHooks from '../../../hooks/token-hooks';
+import { HexString, ILK } from '../../../constants/contracts-abi';
+import { useEffect, useState } from 'react';
+import { formatAmount } from '../../../utilities/formater';
 
 const BorrowFunds = ({ currency, borrowed }: { currency: ICurrency, borrowed: string }) => {
   const navigateHook = useNavigate();
+  const { lockedBorrow, fetchMCR, currentLiquidationPrice } = useTokenHooks()
+  const { address: userAddress } = useAccount();
+
+  const [borrowLimit, setBorrowLimit] = useState({
+    limit: '0',
+    liquidation: '0'
+  })
+
   const navigate = () => {
     navigateHook('/dashboard/mint', {
       state: { currency: currency.address, name: currency.name },
     });
   };
+
+  const init = async () => {
+    const locked = await lockedBorrow(currency.address, userAddress as HexString) as number;
+    const liquidation = await currentLiquidationPrice(currency.address, userAddress as HexString) as number
+    const formatedLocked = Number(ethers.formatUnits(locked));  
+    const formatLiquidation = Number(ethers.formatUnits(liquidation)).toFixed(2);
+      
+    const mcr = ((await fetchMCR(currency.address)) as ILK[])[1] as number;
+    const formatedMCR = Number(ethers.formatUnits(mcr, 27));
+    const limit = (formatedLocked / formatedMCR).toFixed(2)
+    setBorrowLimit({
+      ...borrowLimit,
+      limit,
+      liquidation: formatLiquidation
+    })
+  }
+
+  useEffect(() => {
+    init()
+  }, [currency])
+
   return (
     <div className="border-line  col-start-2 px-[30px] py-[20px] col-span-1 row-span-5">
       <div className="flex items-center ">
@@ -76,12 +111,12 @@ const BorrowFunds = ({ currency, borrowed }: { currency: ICurrency, borrowed: st
       <div className="px-5 mt-9 flex items-center justify-between">
         <div className="flex items-center ">
           <span className="text-[14px] mr-2 text-[#FFFFFFB2]">
-            Liquidation BNB price: $0
+            Liquidation {currency.name} price: ${formatAmount(borrowLimit.liquidation ?? 0)}
           </span>
           <img src={images.sortIcon} width={12} height={12} alt="img-icon" />
         </div>
         <div className="flex items-center ">
-          <span className="text-[14px] mr-2 text-[#FFFFFFB2]">Limit: $0</span>
+          <span className="text-[14px] mr-2 text-[#FFFFFFB2]">Mint Limit: {formatAmount(borrowLimit.limit)} aUSD</span>
           <img src={images.sortIcon} width={12} height={12} alt="img-icon" />
         </div>
       </div>

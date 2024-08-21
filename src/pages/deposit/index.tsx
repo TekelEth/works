@@ -24,6 +24,8 @@ import useTokenHooks from '../../hooks/token-hooks';
 import { toast } from 'react-toastify';
 import ApproveModal from './approve';
 import ModalContainer from '../../components/modal';
+import { useLocation } from 'react-router-dom';
+import { collateralMarketTokens } from '../../__mockdata__/tables';
 
 const DepositPage = () => {
   const dispatch = useAppDispatch();
@@ -35,10 +37,29 @@ const DepositPage = () => {
   const [initalLoading, setInitialLoading] = useState(false);
   const [depositType] = useState('');
   const [approveModal, setApproveModal] = useState(false);
+  const location = useLocation();
+
+
+
 
   useEffect(() => {
-    setCurrency(InitialCurrency);
-  }, []);
+    if(location.state) {
+      const { currency: tokenAddress } = location.state;
+      const token = collateralMarketTokens.find((token) => token.contractAddress === tokenAddress);
+      console.log(token);
+      if(token) {
+        setCurrency({
+          address: token.contractAddress,
+          name: token.name,
+          icon: token.icon
+        })
+      }else {
+        setCurrency(InitialCurrency)
+      }
+    }
+  }, [location])
+
+
 
   const [form, setForm] = useState({
     firstAmount: '',
@@ -63,6 +84,7 @@ const DepositPage = () => {
   }, [form.firstAmount]);
 
   const calculateTokenBalance = async () => {
+    if(!userAddress) return
     setInitialLoading(true);
     const tokenBalance = (await fetchTokenBalance(
       currency.address,
@@ -156,7 +178,7 @@ const DepositPage = () => {
           ) : (
             <div>
               {' '}
-              <span>Max</span> {formatAmount(user.userTokenInfo.balance)}{' '}
+              <span>Max</span> {formatAmount(userAddress ? user.userTokenInfo.balance : 0)}{' '}
               {currency.name}{' '}
             </div>
           )

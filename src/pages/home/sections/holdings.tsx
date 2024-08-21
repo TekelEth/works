@@ -4,12 +4,12 @@ import Button from '../../../components/ui/button';
 const Holdings = () => {
   return (
     <div className="px-20 flex items-center pb-18 justify-between">
-      <img src={images.hodl} alt="hodl-image" className="w-[426px] h-[507px]" />
+      <img data-aos="fade-left" src={images.hodl} alt="hodl-image" className="w-[426px] h-[507px]" />
       <div className="flex flex-col w-[750px] mr-12">
-        <h1 className="text-[40px] font-montserrat font-bold text-white">
+        <h1 data-aos="fade-up-right" className="text-[40px] font-montserrat font-bold text-white">
           STAKE + Earn
         </h1>
-        <span className="text-white py-5 text-[20px]/[33px] font-montserrat">
+        <span data-aos="fade-right" className="text-white py-5 text-[20px]/[33px] font-montserrat">
           TurboAnchor is an open-source, decentralized stablecoin protocol
           powered by Biturbo. Users can stake various decentralized assets as
           collateral across different chains to mint turboUSD on the Biturbo

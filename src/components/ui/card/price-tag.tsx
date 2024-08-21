@@ -37,7 +37,7 @@ const CardLayout = ({
   ...props
 }: CardProps) => {
   return (
-    <div className={cn(cardVariants({ variant, size, className }))} {...props}>
+    <div data-aos="flip-right"  className={cn(cardVariants({ variant, size, className }))} {...props}>
       {children}
     </div>
   );

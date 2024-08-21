@@ -69,7 +69,9 @@ export const dashbaordLinks = [
   {
     title: 'Dashboard',
     href: '/dashboard/dapp',
+    subMenus: ['/dashboard/deposit', '/dashboard/dapp' ]
   },
+
   {
     title: 'Docs',
     href: '#',

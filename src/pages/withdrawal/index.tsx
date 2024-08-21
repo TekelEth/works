@@ -20,7 +20,7 @@ import { fetchIndividualMerketData } from '../../redux/slices/market';
 import { commonContractError } from '../../utilities/error-handler';
 import { toast } from 'react-toastify';
 import useTokenHooks from '../../hooks/token-hooks';
-import { CircularProgressBar } from '../../components/progressbar';
+import Utilization from '../dashboard/components/utilization';
 
 const Withdrawal = () => {
   const dispatch = useAppDispatch();
@@ -45,7 +45,7 @@ const Withdrawal = () => {
           address: contractAddress.interaction,
           functionName: 'availableToBorrow',
           args: [address, userAddress],
-        })
+        })  
       );
     });
   };
@@ -179,14 +179,7 @@ const Withdrawal = () => {
         }
       />
 
-      <div className='border-[#FFFFFF4D] px-[34px] h-[230px] border flex items-center justify-between bg-[#FFFFFF0D] rounded-[15px] mt-10'>
-        <span className="text-[14px] mr-2 text-[#FFFFFFCC] font-montserrat"> Borrow Utilizaton </span>
-          <div className='w-[150px] h-[150px]'>
-            <CircularProgressBar progress={Number(maxBorrow.utilization.toFixed(2))/100} />
-          </div>
-        <span className="text-[14px] mr-2 text-[#FFFFFFCC] font-montserrat">Withdrawal Limit {maxBorrow.max} aUSD</span>
-      </div>
-    
+    <Utilization maxBorrow={maxBorrow} />
       <Button
         isLoading={processing}
         onClick={withdrawalAction}

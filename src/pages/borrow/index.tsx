@@ -33,6 +33,7 @@ const Borrow = () => {
 
   
   const fetchBorrowAmount = async () => {
+    if(!userAddress) return
     setInitialLoading(true);
     const availableToBorrowAmount = (await availableToBorrow(
       tokenAddress,
@@ -155,7 +156,7 @@ const Borrow = () => {
         className="mt-10 h-[70px]"
       >
         {' '}
-        Borrow{' '}
+        Mint{' '}
       </Button>
     </div>
   );
