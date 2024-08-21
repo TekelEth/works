@@ -20,6 +20,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 
 const { connectors } = getDefaultWallets({
   appName: 'TurborAnchor',
+  projectId: '88d80604-ea04-4a68-bc88-dfbf9197d4f2',
   chains,
 });
 
